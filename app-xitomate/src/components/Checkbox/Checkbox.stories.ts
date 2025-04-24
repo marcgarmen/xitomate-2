@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Checkbox } from './Checkbox';
+import Image from 'next/image';
+
 
 const meta: Meta<typeof Checkbox> = {
   title: 'Components/Checkbox',

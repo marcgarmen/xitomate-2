@@ -6,18 +6,18 @@ const meta: Meta<typeof Button> = {
   component: Button,
   tags: ['autodocs'],
   args: {
-    variant: 'SignUpRed', // Default variant
-    size: 'default', // Default size
-    children: 'Button', // Default button text
+    variant: 'SignUpRed',
+    size: 'default',
+    children: 'Button',
   },
   argTypes: {
     variant: {
       control: 'select',
-      options: ['SignUpRed', 'SignupGreen'], // Available variants
+      options: ['SignUpRed', 'AccountRed', 'SignupGreen'], // Add AccountRed
     },
     size: {
       control: 'select',
-      options: ['default', 'sm', 'lg', 'icon'], // Available sizes
+      options: ['default', 'sm', 'lg', 'icon'],
     },
     children: {
       control: 'text',
@@ -32,13 +32,20 @@ type Story = StoryObj<typeof Button>;
 export const SignUpRed: Story = {
   args: {
     variant: 'SignUpRed',
-    children: 'Sign Up Red Button',
+    children: 'Registro',
   },
 };
 
 export const SignupGreen: Story = {
   args: {
     variant: 'SignupGreen',
-    children: 'Sign Up Green Button',
+    children: 'Registro',
+  },
+};
+
+export const AccountRed: Story = {
+  args: {
+    variant: 'AccountRed',
+    children: 'Mi cuenta', // Add the text "Mi cuenta"
   },
 };

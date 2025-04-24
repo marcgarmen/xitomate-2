@@ -1,29 +1,34 @@
 import { ButtonProps as CustomButtonProps } from './ButtonTypes';
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { Settings } from 'lucide-react';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*="size-"])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]',
   {
     variants: {
       variant: {
-        
-        outlinedRed:
-          "border-2 border-red-500 text-black-500 bg-transparent hover:bg-red-100 focus-visible:ring-red-300",
-          outlinedGreen:
-          "border-2 border-green-500 text-black-500 bg-transparent hover:bg-green-100 focus-visible:ring-green-300",
+        SignUpRed:
+          'border-2 border-red-500 text-red-500 bg-transparent hover:bg-red-100 focus-visible:ring-red-300 shadow-md px-6 py-2 rounded-full',
+        SignupGreen:
+          'bg-green-500 text-black rounded-full px-6 py-2 shadow-md hover:bg-green-600 focus-visible:ring-green-300',
+        AccountRed:
+          'border-2 border-red-500 text-red-500 bg-transparent hover:bg-red-100 focus-visible:ring-red-300 shadow-md px-6 py-2 rounded-full', // Similar to SignUpRed
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
+        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
+        sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
+        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
+        icon: 'size-9',
       },
     },
-
+    defaultVariants: {
+      variant: 'SignUpRed',
+      size: 'default',
+    },
   }
 );
 
@@ -32,14 +37,14 @@ function Button({
   variant,
   size,
   asChild = false,
-  buttonType, // Usamos 'buttonType' en lugar de 'type'
+  children,
   ...props
-}: React.ComponentProps<"button"> &
+}: React.ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> &
   CustomButtonProps & {
     asChild?: boolean;
   }) {
-  const Comp = asChild ? Slot : "button";
+  const Comp = asChild ? Slot : 'button';
 
   return (
     <Comp
@@ -47,7 +52,8 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     >
-      {buttonType} {/* Puedes usar 'buttonType' si es necesario */}
+      {variant === 'AccountRed' && <Settings className="mr-2 h-5 w-5" />} {/* Add the settings icon */}
+      {children}
     </Comp>
   );
 }

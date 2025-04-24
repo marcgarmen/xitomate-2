@@ -1,5 +1,6 @@
 export type ButtonType = 'SignUpRed' | 'AccountRed' | 'SignUpGreen';
 
 export interface ButtonProps {
-  type: ButtonType;
+  buttonType: ButtonType;
+  variant?: 'SignUpRed' | 'AccountRed' | 'SignupGreen'; // Add the variant prop
 }

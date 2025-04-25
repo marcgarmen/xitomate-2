@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 
-const SelectionCard = () => {
+const SelectionCardSupplier = () => {
   const [selected, setSelected] = useState(false);
 
   const handleClick = () => {
@@ -18,20 +18,20 @@ const SelectionCard = () => {
     >
       <div className="min-w-[73px] min-h-[80px] relative">
         <Image
-          src="/icon-restaurante1.svg"
-          alt="Icono restaurante"
+          src="/icon-proveedor1.svg"
+          alt="Icono proveedor"
           width={73}
           height={80}
         />
       </div>
       <div>
-        <h3 className="font-bold text-black">Restaurante</h3>
+        <h3 className="font-bold text-black">Proveedor local</h3>
         <p className="text-black">
-          Gestiona insumos, automatiza pedidos y recibe propuestas inteligentes
+          Publica tus productos, gestiona pedidos y conectá con nuevos clientes
         </p>
       </div>
     </div>
   );
 };
 
-export default SelectionCard;
+export default SelectionCardSupplier;

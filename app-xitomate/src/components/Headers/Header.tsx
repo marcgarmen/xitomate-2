@@ -1,58 +1,60 @@
-import { HeaderProps } from './Header.types';
-import Link from 'next/link';
-import Image from 'next/image';
-import { FaUserCog } from 'react-icons/fa';
+"use client";
+
+import { HeaderProps } from "./Header.types";
+import Link from "next/link";
+import Image from "next/image";
+import { FaUserCog } from "react-icons/fa";
 
 const COLORS = {
-  green: '#A1C374',
-  red: '#F45E62',
-  black: '#0C051B',
-  gray: '#F2F2F2',
-  redLight: '#FDE7E7',
+  green: "#A1C374",
+  red: "#F45E62",
+  black: "#0C051B",
+  gray: "#F2F2F2",
+  redLight: "#FDE7E7",
 };
 
 const menuItems = {
   noAuth: [
-    { label: 'Inicio', href: '/' },
-    { label: '¿Cómo funciona?', href: '/info' },
-    { label: 'Beneficios', href: '/beneficios' },
-    { label: 'Ingreso', href: '/login', isButton: true },
+    { label: "Inicio", href: "/" },
+    { label: "¿Cómo funciona?", href: "/info" },
+    { label: "Beneficios", href: "/beneficios" },
+    { label: "Ingreso", href: "/login", isButton: true },
   ],
   restaurante: [
-    { label: 'Inicio', href: '/' },
-    { label: 'Platillos', href: '/platillos' },
-    { label: 'Pedidos', href: '/pedidos' },
-    { label: 'Contacto', href: '/contacto' },
-    { label: 'Análisis', href: '/analisis' },
-    { label: 'ExploraIA', href: '/exploraia' },
-    { label: 'Mi cuenta', href: '/micuenta', isButton: true },
+    { label: "Inicio", href: "/" },
+    { label: "Platillos", href: "/platillos" },
+    { label: "Pedidos", href: "/pedidos" },
+    { label: "Contacto", href: "/contacto" },
+    { label: "Análisis", href: "/analisis" },
+    { label: "ExploraIA", href: "/exploraia" },
+    { label: "Mi cuenta", href: "/micuenta", isButton: true },
   ],
   proveedor: [
-    { label: 'Inicio', href: '/' },
-    { label: 'Mis productos', href: '/productos' },
-    { label: 'Pedidos', href: '/pedidos' },
-    { label: 'Análisis', href: '/analisis' },
-    { label: 'ExploraIA', href: '/exploraia' },
-    { label: 'Mi cuenta', href: '/micuenta', isButton: true },
+    { label: "Inicio", href: "/" },
+    { label: "Mis productos", href: "/productos" },
+    { label: "Pedidos", href: "/pedidos" },
+    { label: "Análisis", href: "/analisis" },
+    { label: "ExploraIA", href: "/exploraia" },
+    { label: "Mi cuenta", href: "/micuenta", isButton: true },
   ],
   admin: [
-    { label: 'Inicio', href: '/' },
-    { label: 'Gestionar credenciales', href: '/credenciales' },
-    { label: 'Análisis de alcance', href: '/alcance' },
-    { label: 'Cerrar sesión', href: '/', isButton: true },
+    { label: "Inicio", href: "/" },
+    { label: "Gestionar credenciales", href: "/credenciales" },
+    { label: "Análisis de alcance", href: "/alcance" },
+    { label: "Cerrar sesión", href: "/", isButton: true },
   ],
 };
 
 export default function Header({ type }: HeaderProps) {
   const items = menuItems[type];
-  const isNoAuth = type === 'noAuth';
+  const isNoAuth = type === "noAuth";
 
   const buttonItem = items.find((i) => i.isButton);
   const navItems = items.filter((i) => !i.isButton);
 
   return (
     <header
-      className={`w-full shadow-md ${isNoAuth ? 'bg-[#F2F2F2]' : 'bg-white'}`}
+      className={`w-full shadow-md ${isNoAuth ? "bg-[#F2F2F2]" : "bg-white"}`}
     >
       <div className="flex justify-between items-center w-full max-w-[1340px] mx-auto px-10 h-[62px]">
         {/* Logo */}
@@ -83,7 +85,7 @@ export default function Header({ type }: HeaderProps) {
           ))}
         </nav>
 
-        {/* Botón derecho */}
+        {/* Botón */}
         {buttonItem && (
           <Link
             href={buttonItem.href}
@@ -94,7 +96,9 @@ export default function Header({ type }: HeaderProps) {
               color: COLORS.red,
             }}
           >
-            {(type !== 'admin' && type !== 'noAuth') && <FaUserCog className="text-[#F45E62]" />}
+            {type !== "admin" && type !== "noAuth" && (
+              <FaUserCog className="text-[#F45E62]" />
+            )}
             {buttonItem.label}
           </Link>
         )}

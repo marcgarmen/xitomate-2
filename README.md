@@ -5,7 +5,7 @@
 
 | Finished Component     | Assigned To |
 |------------------------|-------------|
-| Sign in fields         | Paola       |
-| Combined users chart   | Paola       |
-| Headers                | Rosa        |
-| Card of type News      | Rosa        |
+| Sign in fields         |        |
+| Combined users chart   |        |
+| Headers                |    |
+| Card of type News      |         |

@@ -1,4 +1,4 @@
-package com.xitomate.domain.service;
+package com.xitomate.application.service;
 
 import com.xitomate.infrastructure.persistence.repository.OrderRequestPanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;

@@ -1,6 +1,6 @@
 package com.xitomate.infrastructure.rest;
 
-import com.xitomate.application.usecase.GetAvailableCatalogUseCase;
+import com.xitomate.application.useCase.GetAvailableCatalogUseCase;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

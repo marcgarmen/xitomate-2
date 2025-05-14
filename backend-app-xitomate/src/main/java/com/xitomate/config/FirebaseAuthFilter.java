@@ -1,4 +1,4 @@
-package com.xitomate.infrastructure.rest;
+package com.xitomate.config;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;

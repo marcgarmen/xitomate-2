@@ -1,6 +1,6 @@
-package com.xitomate.application.usecase;
+package com.xitomate.application.useCase;
 
-import com.xitomate.domain.service.CatalogService;
+import com.xitomate.application.service.CatalogService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;

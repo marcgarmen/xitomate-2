@@ -47,6 +47,14 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
+    
+    
+    <!-- Dependency for Jakarta EE Annotations -->
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-arc</artifactId>
+        </dependency>
 
         <!-- Hibernate Panache + MySQL -->
         <dependency>

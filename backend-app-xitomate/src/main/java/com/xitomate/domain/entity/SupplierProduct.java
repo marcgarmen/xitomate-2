@@ -20,6 +20,8 @@ public class SupplierProduct {
     public BigDecimal precio;
     public Integer stock;
     public Boolean organico;
+    public Boolean activo;
+    public Double rating;
 
     @Column(name = "fecha_actualizacion")
     public LocalDateTime fechaActualizacion;

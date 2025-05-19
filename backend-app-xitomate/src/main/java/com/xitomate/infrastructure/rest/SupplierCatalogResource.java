@@ -5,6 +5,7 @@ import com.xitomate.application.useCase.GetPipelineStatusUseCase;
 import com.xitomate.application.useCase.GetDailyIncomeUseCase;
 import com.xitomate.application.useCase.GetLowStockAlertUseCase;
 import com.xitomate.application.useCase.GetTopProductsUseCase;
+import com.xitomate.application.useCase.GetActiveProductsUseCase;
 import com.xitomate.domain.dto.StatusCountDTO;
 import com.xitomate.domain.entity.SupplierProduct;
 import jakarta.inject.Inject;
@@ -21,6 +22,7 @@ public class SupplierCatalogResource {
     @Inject GetDailyIncomeUseCase dailyIncomeUseCase;
     @Inject GetLowStockAlertUseCase lowStockAlertUseCase;
     @Inject GetTopProductsUseCase topProductsUseCase;
+    @Inject GetActiveProductsUseCase activeProductsUseCase;
 
     @GET
     public List<?> list(@PathParam("id") Long id,
@@ -58,5 +60,26 @@ public class SupplierCatalogResource {
         LocalDate start = LocalDate.parse(startDate);
         LocalDate end = LocalDate.parse(endDate);
         return topProductsUseCase.execute(start, end, limit);
+    }
+
+    @GET
+    @Path("/active")
+    public List<SupplierProduct> getActiveProducts(
+            @PathParam("id") Long supplierId,
+            @QueryParam("sortBy") @DefaultValue("date") String sortBy,
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size) {
+        return activeProductsUseCase.execute(supplierId, sortBy, page, size);
+    }
+
+    @GET
+    @Path("/active/category/{category}")
+    public List<SupplierProduct> getActiveProductsByCategory(
+            @PathParam("id") Long supplierId,
+            @PathParam("category") String category,
+            @QueryParam("sortBy") @DefaultValue("date") String sortBy,
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size) {
+        return activeProductsUseCase.executeByCategory(supplierId, category, sortBy, page, size);
     }
 }

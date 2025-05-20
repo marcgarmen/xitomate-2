@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import SelectionCard from '@/components/SelectionCard/SelectionCard'; // componente de la tarjeta de selección
-import { Button } from '../../components/Button/Button'; // componente del boton
+import { Button } from '@/components/Button/Button'; // componente del botón
+import SelectionCardRestaurant from '@/components/CardSelection/SelectionCardRestaurant'; // componente de restaurante
+import SelectionCardSupplier from '@/components/CardSelection/SelectionCardSupplier'; // componente de proveedor
 
 export default function RegistroPage() {
   const [selectedType, setSelectedType] = useState<'restaurante' | 'proveedor' | null>(null);
@@ -14,7 +15,7 @@ export default function RegistroPage() {
       alert("Debes seleccionar el tipo de operación y aceptar los términos.");
       return;
     }
-    // lógica de envío
+    // Lógica de envío
     console.log("Formulario enviado");
   };
 
@@ -24,25 +25,20 @@ export default function RegistroPage() {
       <h1 className="text-4xl font-bold mb-2">Registro</h1>
       <p className="text-gray-600 mb-8 text-center">Selecciona tu tipo de operación:</p>
 
-      {/* Selección de tipo de usuario */}
+      {/* Tarjetas de selección */}
       <div className="flex flex-col md:flex-row gap-6 mb-12">
-        <SelectionCard
-          title="Restaurante"
-          description="Gestiona insumos, automatiza pedidos y recibe propuestas inteligentes"
-          icon="/icon-restaurante1.svg"
+        <SelectionCardRestaurant
           selected={selectedType === 'restaurante'}
           onClick={() => setSelectedType('restaurante')}
         />
-        <SelectionCard
-          title="Proveedor local"
-          description="Publica tus productos, gestiona pedidos y conectá con nuevos clientes"
-          icon="/icon-proveedor1.svg"
+
+        <SelectionCardSupplier
           selected={selectedType === 'proveedor'}
           onClick={() => setSelectedType('proveedor')}
         />
       </div>
 
-      {/* Formulario de datos */}
+      {/* Formulario */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -82,13 +78,13 @@ export default function RegistroPage() {
         </label>
 
         <div className="self-center mt-4">
-          <Button variant="SignupGreen" type="submit" onClick={handleSubmit}>
+          <Button variant="SignupGreen" type="submit">
             Registrarme
           </Button>
         </div>
       </div>
 
-      {/* MODAL DE TÉRMINOS */}
+      {/* Modal de términos */}
       {showTerms && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-lg w-full shadow-lg relative">
@@ -96,7 +92,7 @@ export default function RegistroPage() {
               onClick={() => setShowTerms(false)}
               className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl"
             >
-             x 
+              ×
             </button>
             <h2 className="text-xl font-bold mb-4">Términos y Condiciones</h2>
             <p className="text-sm text-gray-700 max-h-[60vh] overflow-y-auto">
@@ -108,3 +104,4 @@ export default function RegistroPage() {
     </main>
   );
 }
+

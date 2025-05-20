@@ -92,7 +92,7 @@ export default function RegistroPage() {
               onClick={() => setShowTerms(false)}
               className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl"
             >
-              ×
+              X
             </button>
             <h2 className="text-xl font-bold mb-4">Términos y Condiciones</h2>
             <p className="text-sm text-gray-700 max-h-[60vh] overflow-y-auto">

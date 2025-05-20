@@ -1,17 +1,15 @@
 'use client';
-import { useState } from 'react';
 import Image from 'next/image';
 
-const SelectionCardRestaurant = () => {
-  const [selected, setSelected] = useState(false);
+interface Props {
+  selected: boolean;
+  onClick: () => void;
+}
 
-  const handleClick = () => {
-    setSelected(!selected);
-  };
-
+const SelectionCardRestaurant = ({ selected, onClick }: Props) => {
   return (
     <div
-      onClick={handleClick}
+      onClick={onClick}
       className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-colors duration-200 ${
         selected ? 'bg-[#A1C374]' : 'bg-gray-200'
       } w-[433px] h-[108px]`}

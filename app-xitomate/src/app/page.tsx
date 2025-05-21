@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/Button/Button"; // componente de "Button"
-import { useRouter } from "next/navigation"; //  redireccionamiento
+import { useRouter } from "next/navigation"; // redireccionamiento
 import Image from "next/image";
 
 export default function Home() {
@@ -56,4 +56,3 @@ export default function Home() {
     </main>
   );
 }
-

@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FaUserCog } from "react-icons/fa";
 
+// Colores base usados en los estilos inline
 const COLORS = {
   green: "#A1C374",
   red: "#F45E62",
@@ -13,12 +14,13 @@ const COLORS = {
   redLight: "#FDE7E7",
 };
 
+// Menús para diferentes tipos de usuario
 const menuItems = {
   noAuth: [
     { label: "Inicio", href: "/" },
     { label: "¿Cómo funciona?", href: "/info" },
     { label: "Beneficios", href: "/beneficios" },
-    { label: "Ingreso", href: "/login", isButton: true },
+    { label: "Ingreso", href: "/login", isButton: true }, // botón a login
   ],
   restaurante: [
     { label: "Inicio", href: "/" },
@@ -27,7 +29,7 @@ const menuItems = {
     { label: "Contacto", href: "/contacto" },
     { label: "Análisis", href: "/analisis" },
     { label: "ExploraIA", href: "/exploraia" },
-    { label: "Mi cuenta", href: "/micuenta", isButton: true },
+    { label: "Mi cuenta", href: "/login", isButton: true }, // redirige a login
   ],
   proveedor: [
     { label: "Inicio", href: "/" },
@@ -35,7 +37,7 @@ const menuItems = {
     { label: "Pedidos", href: "/pedidos" },
     { label: "Análisis", href: "/analisis" },
     { label: "ExploraIA", href: "/exploraia" },
-    { label: "Mi cuenta", href: "/micuenta", isButton: true },
+    { label: "Mi cuenta", href: "/login", isButton: true }, // redirige a login
   ],
   admin: [
     { label: "Inicio", href: "/" },
@@ -85,7 +87,7 @@ export default function Header({ type }: HeaderProps) {
           ))}
         </nav>
 
-        {/* Botón */}
+        {/* Botón derecho (login o cuenta) */}
         {buttonItem && (
           <Link
             href={buttonItem.href}
@@ -96,6 +98,7 @@ export default function Header({ type }: HeaderProps) {
               color: COLORS.red,
             }}
           >
+            {/* Ícono de engrane excepto en modo no autenticado */}
             {type !== "admin" && type !== "noAuth" && (
               <FaUserCog className="text-[#F45E62]" />
             )}

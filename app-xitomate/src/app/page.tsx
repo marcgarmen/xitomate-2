@@ -23,7 +23,7 @@ export default function Home() {
             Automatizamos y predecimos el abastecimiento de tu negocio, en base a las tendencias de la industria.
           </p>
 
-          {/* Botón usando el componente Button */}
+          {/* componente Button */}
           <Button
             variant="SignUpRed" // se puede cambiar el color "SignupGreen" o "AccountRed"
             onClick={() => router.push("/registro")} // Redirección a la página de registro

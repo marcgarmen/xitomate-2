@@ -1,6 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
-import { Dish } from './AddDishModal';
+import type { Dish } from './types';
 
 interface Props {
   dishes: Dish[];
@@ -9,7 +9,8 @@ interface Props {
 }
 
 const DishTable: React.FC<Props> = ({ dishes, onEdit, onDelete }) => {
-  if (dishes.length === 0) return <p className="text-lg text-gray-600">Aún no has agregado platillos.</p>;
+  if (dishes.length === 0)
+    return <p className="text-lg text-gray-600">Aún no has agregado platillos.</p>;
 
   return (
     <div className="overflow-x-auto">
@@ -28,11 +29,19 @@ const DishTable: React.FC<Props> = ({ dishes, onEdit, onDelete }) => {
               <td className="px-4 py-2 text-left font-medium">{dish.name}</td>
 
               <td className="px-4 py-2 text-left">
-                {dish.ingredients.map((i) => <div key={i.name}>{i.name}</div>)}
+                {dish.ingredients.map(
+                  (i: Dish['ingredients'][number]) => (
+                    <div key={i.name}>{i.name}</div>
+                  )
+                )}
               </td>
 
               <td className="px-4 py-2 text-left">
-                {dish.ingredients.map((i) => <div key={`${i.name}-qty`}>{i.quantity}</div>)}
+                {dish.ingredients.map(
+                  (i: Dish['ingredients'][number]) => (
+                    <div key={`${i.name}-qty`}>{i.quantity}</div>
+                  )
+                )}
               </td>
 
               <td className="px-2 py-2 flex gap-2">

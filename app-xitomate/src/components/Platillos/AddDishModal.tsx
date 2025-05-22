@@ -1,64 +1,90 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/Button/Button';
 import { Minus, Plus } from 'lucide-react';
+import { Button } from '@/components/Button/Button';
+import type { Dish } from './types';
 
-type Ingredient = { id: number; name: string; quantity: number | '' };
-export type Dish = { name: string; ingredients: { name: string; quantity: number }[] };
+type Row = { id: number; name: string; quantity: number | '' };
 
 interface Props {
-  /** Se envía cuando CREAS o ACTUALIZAS */
   onSave: (dish: Dish) => void;
-  /** Cierra el modal sin guardar */
   onCancel: () => void;
-  /** Si lo pasas, el modal se abre en modo edición */
   initialDish?: Dish;
 }
 
 export default function AddDishModal({ onSave, onCancel, initialDish }: Props) {
   const [dishName, setDishName] = useState('');
-  const [ingredients, setIngredients] = useState<Ingredient[]>([
+  const [ingredients, setIngredients] = useState<Row[]>([
     { id: 1, name: '', quantity: '' },
   ]);
 
-  /* ----   precarga al editar   ---- */
   useEffect(() => {
     if (initialDish) {
       setDishName(initialDish.name);
       setIngredients(
-        initialDish.ingredients.map((ing, idx) => ({
-          id: idx + 1,
-          name: ing.name,
-          quantity: ing.quantity,
-        }))
+        initialDish.ingredients.map(
+          (ing, idx): Row => ({
+            id: idx + 1,
+            name: ing.name,
+            quantity: ing.quantity,
+          })
+        )
       );
     }
   }, [initialDish]);
 
-  /* ----   helpers   ---- */
   const addRow = () => {
     const last = ingredients.at(-1)!;
     if (!last.name || last.quantity === '') return;
-    setIngredients((prev) => [...prev, { id: Date.now(), name: '', quantity: '' }]);
+    setIngredients((prev) => [
+      ...prev,
+      { id: Date.now(), name: '', quantity: '' },
+    ]);
   };
 
-  const removeRow = (id: number) => setIngredients((prev) => prev.filter((r) => r.id !== id));
+  const removeRow = (id: number) =>
+    setIngredients((prev) => prev.filter((r) => r.id !== id));
 
-  const change = (id: number, field: 'name' | 'quantity', value: string) => {
+  const change = (id: number, field: 'name' | 'quantity', value: string) =>
     setIngredients((prev) =>
-      prev.map((ing) => (ing.id === id ? { ...ing, [field]: field === 'quantity' ? Number(value) : value } : ing))
+      prev.map((ing) =>
+        ing.id === id
+          ? {
+              ...ing,
+              [field]:
+                field === 'quantity'
+                  ? (value === '' ? '' : Number(value))
+                  : value,
+            }
+          : ing
+      )
     );
-  };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!dishName.trim()) return;
-    const valid = ingredients.filter((i) => i.name && i.quantity !== '') as Dish['ingredients'];
+
+    const valid = ingredients.filter(
+      (r): r is Row & { quantity: number } =>
+        r.name !== '' && r.quantity !== ''
+    );
     if (!valid.length) return;
-    onSave({ name: dishName.trim(), ingredients: valid });
+
+    const payload: Dish = {
+      name: dishName.trim(),
+      ingredients: valid.map(({ name, quantity }) => ({ name, quantity })),
+    };
+
+    const res = await fetch('/api/dishes', {
+      method: initialDish ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) return;
+
+    onSave(await res.json());
   };
 
-  /* ----   UI   ---- */
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-2xl p-8 shadow-xl w-full max-w-md">
@@ -78,15 +104,19 @@ export default function AddDishModal({ onSave, onCancel, initialDish }: Props) {
         {ingredients.map((ing, idx) => (
           <div key={ing.id} className="flex items-center gap-2 mb-3">
             {idx !== 0 && (
-              <button className="size-6 flex items-center justify-center rounded-full bg-[#F45E62] text-white"
-                      onClick={() => removeRow(ing.id)}>
+              <button
+                className="size-6 flex items-center justify-center rounded-full bg-[#F45E62] text-white"
+                onClick={() => removeRow(ing.id)}
+              >
                 <Minus size={14} />
               </button>
             )}
 
             {idx === ingredients.length - 1 && (
-              <button className="size-6 flex items-center justify-center rounded-full bg-[#A1C374] text-black"
-                      onClick={addRow}>
+              <button
+                className="size-6 flex items-center justify-center rounded-full bg-[#A1C374] text-black"
+                onClick={addRow}
+              >
                 <Plus size={14} />
               </button>
             )}
@@ -109,10 +139,18 @@ export default function AddDishModal({ onSave, onCancel, initialDish }: Props) {
         ))}
 
         <div className="mt-8 flex justify-center gap-4">
-          <Button variant="OutlineGreen" onClick={handleSave}>
+          <Button
+            buttonType="OutlineGreen"
+            variant="OutlineGreen"
+            onClick={handleSave}
+          >
             {initialDish ? 'Guardar' : 'Agregar'}
           </Button>
-          <Button variant="SignUpRed" onClick={onCancel}>
+          <Button
+            buttonType="SignUpRed"
+            variant="SignUpRed"
+            onClick={onCancel}
+          >
             Cancelar
           </Button>
         </div>

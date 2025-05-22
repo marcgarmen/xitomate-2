@@ -21,12 +21,10 @@ import { Input } from "@/components/ui/input";
 
 const FormSchema = z.object({
   username: z.string().min(2, {
-    //change this to our own regex
-    message: "Tu username debe ser más largo.",
+    message: "El usuario debe tener al menos 2 caracteres.",
   }),
   password: z.string().min(6, {
-    //change this to our own regex
-    message: "Tu contraseña debe ser más larga.",
+    message: "La contraseña debe tener al menos 6 caracteres.",
   }),
 });
 
@@ -43,7 +41,7 @@ export function SignInFields() {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     toast({
-      title: "You submitted the following values:",
+      title: "Datos enviados:",
       description: (
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
           <code className="text-white">{JSON.stringify(data, null, 2)}</code>
@@ -55,30 +53,29 @@ export function SignInFields() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+        {/* Campo de Usuario */}
         <FormField
           control={form.control}
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Usuario</FormLabel>
               <FormControl>
                 <Input
                   className={`border-4 p-2 w-full rounded-md ${
                     field.value ? "border-[#A1C374]" : "border-black"
                   }`}
-                  placeholder="Enter your username"
+                  placeholder="Escribe tu usuario"
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                Así nos referiremos a ti.
-              </FormDescription>
+              <FormDescription>Así nos referiremos a ti.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Password Field */}
+        {/* Campo de Contraseña */}
         <FormField
           control={form.control}
           name="password"
@@ -108,16 +105,14 @@ export function SignInFields() {
                   </button>
                 </div>
               </FormControl>
-              <FormDescription>
-                {/*change to our own instructions*/}
-                Tu password debe de ser mejor.
-              </FormDescription>
+              <FormDescription>Debe tener al menos 6 caracteres.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Cambiar a botón nuestro</Button>
+        {/* Botón */}
+        <Button type="submit">Iniciar sesión</Button>
       </form>
     </Form>
   );

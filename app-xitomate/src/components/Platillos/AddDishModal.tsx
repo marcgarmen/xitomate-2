@@ -140,14 +140,12 @@ export default function AddDishModal({ onSave, onCancel, initialDish }: Props) {
 
         <div className="mt-8 flex justify-center gap-4">
           <Button
-            buttonType="OutlineGreen"
             variant="OutlineGreen"
             onClick={handleSave}
           >
             {initialDish ? 'Guardar' : 'Agregar'}
           </Button>
           <Button
-            buttonType="SignUpRed"
             variant="SignUpRed"
             onClick={onCancel}
           >

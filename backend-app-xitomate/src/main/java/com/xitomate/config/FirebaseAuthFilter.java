@@ -10,13 +10,30 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class FirebaseAuthFilter implements ContainerRequestFilter {
 
+    private static final List<String> PUBLIC_PATHS = Arrays.asList(
+        "/users/register",
+        "/users/test-data",
+        "/auth/login",
+        "/q/health",
+        "/q/openapi"
+    );
+
     @Override
     public void filter(ContainerRequestContext ctx) throws IOException {
+        String path = ctx.getUriInfo().getPath();
+        
+        // Allow public paths
+        if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
+            return;
+        }
+
         String auth = ctx.getHeaderString("Authorization");
         if (auth == null || !auth.startsWith("Bearer ")) {
             abort(ctx);

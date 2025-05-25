@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { Button } from '@/components/Button/Button';
 import DishTable from '@/components/Platillos/DishTable';
-import AddDishModal, { Dish } from '@/components/Platillos/AddDishModal';
+import AddDishModal from '@/components/Platillos/AddDishModal';
+import type { Dish } from '@/components/Platillos/types';
 
 export default function PlatillosPage() {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
 
-  /* ---- handlers ---- */
   const handleSave = (dish: Dish) => {
     if (editingIdx !== null) {
       setDishes((prev) => prev.map((d, i) => (i === editingIdx ? dish : d)));
@@ -26,33 +26,32 @@ export default function PlatillosPage() {
     setModalOpen(true);
   };
 
-  const handleDelete = (idx: number) => setDishes((prev) => prev.filter((_, i) => i !== idx));
+  const handleDelete = (idx: number) =>
+    setDishes((prev) => prev.filter((_, i) => i !== idx));
 
-  /* ---- render ---- */
   return (
-    <main className="min-h-screen bg-[#FAF5F0]">
-      <section className="max-w-5xl mx-auto px-4 py-10 text-center">
-        <h1 className="text-3xl font-bold mb-8">Registra tus platillos</h1>
-
-        <DishTable dishes={dishes} onEdit={handleEdit} onDelete={handleDelete} />
-
-        <div className="mt-8">
+    <main className="bg-[#FAF5F0] min-h-screen">
+      <div className="container mx-auto max-w-5xl py-10">
+        <div className="flex gap-4 mb-8">
           <Button variant="SignupGreen" onClick={() => setModalOpen(true)}>
             Nuevo platillo
           </Button>
         </div>
-      </section>
 
-      {modalOpen && (
+        <h2 className="text-2xl font-bold mb-4">Tus platillos</h2>
+
+        <DishTable dishes={dishes} onEdit={handleEdit} onDelete={handleDelete} />
+
         <AddDishModal
-          onSave={handleSave}
-          onCancel={() => {
+          open={modalOpen}
+          onClose={() => {
             setModalOpen(false);
             setEditingIdx(null);
           }}
+          onSave={handleSave}
           initialDish={editingIdx !== null ? dishes[editingIdx] : undefined}
         />
-      )}
+      </div>
     </main>
   );
 }

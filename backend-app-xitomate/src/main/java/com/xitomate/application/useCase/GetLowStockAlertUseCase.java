@@ -9,7 +9,8 @@ import java.util.List;
 @ApplicationScoped
 public class GetLowStockAlertUseCase {
 
-    @Inject LowStockService service;
+    @Inject
+    LowStockService service;
 
     public List<SupplierProduct> execute(Long supplierId, int threshold) {
         return service.lowStock(supplierId, threshold);

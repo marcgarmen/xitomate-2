@@ -1,6 +1,7 @@
 package com.xitomate.infrastructure.rest;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.xitomate.domain.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.ws.rs.*;
@@ -31,23 +32,34 @@ public class AuthResource {
                 .orElse(null);
 
             if (user == null || !user.password.equals(password)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Invalid credentials");
                 return Response.status(Response.Status.UNAUTHORIZED)
-                        .entity(Map.of("error", "Invalid credentials"))
+                        .entity(error)
                         .build();
             }
 
-            // Create a custom token for the user
+            // Create a custom token using the user's email as the UID
             String customToken = FirebaseAuth.getInstance().createCustomToken(email);
             
-            Map<String, String> response = new HashMap<>();
+            Map<String, Object> response = new HashMap<>();
             response.put("token", customToken);
-            response.put("email", email);
+            response.put("email", user.email);
             response.put("role", user.role.toString());
+            response.put("userId", user.id);
             
             return Response.ok(response).build();
+        } catch (FirebaseAuthException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error with Firebase authentication: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(error)
+                    .build();
         } catch (Exception e) {
-            return Response.status(Response.Status.UNAUTHORIZED)
-                    .entity(Map.of("error", "Invalid credentials"))
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error during authentication: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(error)
                     .build();
         }
     }

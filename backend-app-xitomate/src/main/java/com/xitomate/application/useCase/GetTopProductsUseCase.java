@@ -9,7 +9,8 @@ import java.util.List;
 @ApplicationScoped
 public class GetTopProductsUseCase {
 
-    @Inject TopProductService service;
+    @Inject
+    TopProductService service;
 
     public List<Object[]> execute(LocalDate start, LocalDate end, int limit) {
         return service.topProducts(start, end, limit);

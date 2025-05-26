@@ -16,35 +16,35 @@ public class OrderManagementService {
 
     public List<OrderRequest> findPendingOrders(Long supplierId) {
         return repo.find("supplier.id = ?1 and status = ?2 order by fecha desc", 
-                        supplierId, OrderStatus.PENDING)
+                        supplierId, OrderStatus.PENDIENTE)
                   .list();
     }
 
     @Transactional
     public OrderRequest acceptOrder(Long orderId, Long supplierId) {
         OrderRequest order = repo.find("id = ?1 and supplier.id = ?2 and status = ?3", 
-                                     orderId, supplierId, OrderStatus.PENDING)
+                                     orderId, supplierId, OrderStatus.PENDIENTE)
                                .firstResult();
         
         if (order == null) {
             throw new IllegalArgumentException("Order not found or not in pending status");
         }
         
-        order.status = OrderStatus.ACCEPTED;
+        order.status = OrderStatus.ACEPTADO;
         return order;
     }
 
     @Transactional
     public OrderRequest declineOrder(Long orderId, Long supplierId) {
         OrderRequest order = repo.find("id = ?1 and supplier.id = ?2 and status = ?3", 
-                                     orderId, supplierId, OrderStatus.PENDING)
+                                     orderId, supplierId, OrderStatus.PENDIENTE)
                                .firstResult();
         
         if (order == null) {
             throw new IllegalArgumentException("Order not found or not in pending status");
         }
         
-        order.status = OrderStatus.DECLINED;
+        order.status = OrderStatus.RECHAZADO;
         return order;
     }
 } 

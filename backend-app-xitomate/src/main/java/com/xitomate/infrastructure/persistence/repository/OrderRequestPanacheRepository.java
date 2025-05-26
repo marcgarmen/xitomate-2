@@ -21,7 +21,7 @@ public class OrderRequestPanacheRepository implements PanacheRepository<OrderReq
                         "from OrderRequest orq join orq.orderProducts op " +
                         "where orq.status = ?1 and orq.paymentStatus = ?2 and orq.fecha >= ?3 " +
                         "group by fecha order by fecha",
-                OrderStatus.ACCEPTED, PaymentStatus.CAPTURED, from)
+                OrderStatus.ACEPTADO, PaymentStatus.CAPTURED, from)
                 .project(Object[].class).list();
     }
 
@@ -30,7 +30,7 @@ public class OrderRequestPanacheRepository implements PanacheRepository<OrderReq
                         "from OrderRequest orq join orq.orderProducts op join op.supplierProduct sp " +
                         "where orq.status = ?1 and orq.fecha between ?2 and ?3 " +
                         "group by sp.id, sp.nombre order by sum(op.cantidad) desc",
-                OrderStatus.ACCEPTED, start, end)
+                OrderStatus.ACEPTADO, start, end)
                 .page(0, limit).project(Object[].class).list();
     }
 }

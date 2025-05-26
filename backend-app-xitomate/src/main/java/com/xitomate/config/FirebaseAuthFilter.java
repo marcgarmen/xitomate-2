@@ -12,6 +12,8 @@ import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
@@ -36,19 +38,25 @@ public class FirebaseAuthFilter implements ContainerRequestFilter {
 
         String auth = ctx.getHeaderString("Authorization");
         if (auth == null || !auth.startsWith("Bearer ")) {
-            abort(ctx);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Missing or invalid Authorization header");
+            ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(error)
+                    .build());
             return;
         }
-        String idToken = auth.substring(7);
-        try {
-            FirebaseToken decoded = FirebaseAuth.getInstance().verifyIdToken(idToken);
-            ctx.setProperty("firebaseUid", decoded.getUid());
-        } catch (FirebaseAuthException e) {
-            abort(ctx);
-        }
-    }
 
-    private void abort(ContainerRequestContext ctx) {
-        ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+        String token = auth.substring(7);
+        try {
+            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+            ctx.setProperty("userEmail", decodedToken.getEmail());
+            ctx.setProperty("firebaseUid", decodedToken.getUid());
+        } catch (FirebaseAuthException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid token: " + e.getMessage());
+            ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(error)
+                    .build());
+        }
     }
 }

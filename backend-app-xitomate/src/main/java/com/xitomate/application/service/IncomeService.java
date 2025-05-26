@@ -25,7 +25,7 @@ public class IncomeService {
            group by fecha
            order by fecha
            """,
-           OrderStatus.ACCEPTED,
+           OrderStatus.ACEPTADO,
            PaymentStatus.CAPTURED,
            start
         ).project(Object[].class).list();

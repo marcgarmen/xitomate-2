@@ -13,7 +13,12 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['SignUpRed', 'AccountRed', 'SignupGreen'], // Add AccountRed
+      options: [
+        'SignUpRed',
+        'AccountRed',
+        'SignupGreen',
+        'OutlineGreen', // ← añadido
+      ],
     },
     size: {
       control: 'select',
@@ -39,13 +44,20 @@ export const SignUpRed: Story = {
 export const SignupGreen: Story = {
   args: {
     variant: 'SignupGreen',
-    children: 'Registro',
+    children: 'Nuevo platillo',
   },
 };
 
 export const AccountRed: Story = {
   args: {
     variant: 'AccountRed',
-    children: 'Mi cuenta', // Add the text "Mi cuenta"
+    children: 'Mi cuenta',
+  },
+};
+
+export const OutlineGreen: Story = {
+  args: {
+    variant: 'OutlineGreen',
+    children: 'Agregar',
   },
 };

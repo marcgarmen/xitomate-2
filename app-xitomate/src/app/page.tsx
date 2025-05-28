@@ -25,7 +25,7 @@ export default function Home() {
 
           {/* componente Button */}
           <Button
-            buttonType="SignUpRed" // se puede cambiar el color "SignupGreen" o "AccountRed"
+            variant="SignUpRed" // se puede cambiar el color "SignupGreen" o "AccountRed"
             onClick={() => router.push("/registro")} // Redirección a la página de registro
           >
             Registro

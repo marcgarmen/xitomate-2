@@ -2,7 +2,6 @@ package com.xitomate.domain.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "supplier_product")
@@ -15,14 +14,7 @@ public class SupplierProduct {
     public User supplier;
 
     public String nombre;
-    public String categoria;
-    public String unidad;
     public BigDecimal precio;
+    public String unidad;
     public Integer stock;
-    public Boolean organico;
-    public Boolean activo;
-    public Double rating;
-
-    @Column(name = "fecha_actualizacion")
-    public LocalDateTime fechaActualizacion;
 }

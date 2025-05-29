@@ -20,11 +20,11 @@ const buttonVariants = cva(
         SignupGreen:
           'bg-[#A1C374] text-black rounded-full px-6 py-2 shadow-md hover:bg-[#A1C374]/90 focus-visible:ring-[#A1C374]/50',
 
-        // Botón rojo contorno + ícono (Mi cuenta)
+        // Botón rojo contorno + ícono de engrane (Mi cuenta)
         AccountRed:
           'border-2 border-[#F45E62] text-[#F45E62] bg-transparent hover:bg-[#F45E62]/10 focus-visible:ring-[#F45E62]/50 shadow-md px-6 py-2 rounded-full',
 
-        // botón verde contorno
+        // 🔥 NUEVO: botón verde contorno
         OutlineGreen:
           'border-2 border-[#A1C374] text-[#A1C374] bg-transparent hover:bg-[#A1C374]/10 focus-visible:ring-[#A1C374]/50 shadow-md px-6 py-2 rounded-full',
       },

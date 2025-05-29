@@ -16,6 +16,10 @@ public class ManageSupplierOrdersUseCase {
         return service.findPendingOrders(supplierId);
     }
 
+    public List<OrderRequest> getAllOrders(Long supplierId) {
+        return service.findAllOrders(supplierId);
+    }
+
     public OrderRequest acceptOrder(Long orderId, Long supplierId) {
         return service.acceptOrder(orderId, supplierId);
     }

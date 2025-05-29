@@ -20,6 +20,10 @@ public class OrderManagementService {
                   .list();
     }
 
+    public List<OrderRequest> findAllOrders(Long supplierId) {
+        return repo.find("supplier.id = ?1 order by fecha desc", supplierId).list();
+    }
+
     @Transactional
     public OrderRequest acceptOrder(Long orderId, Long supplierId) {
         OrderRequest order = repo.find("id = ?1 and supplier.id = ?2 and status = ?3", 

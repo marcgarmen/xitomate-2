@@ -25,7 +25,7 @@ const menuItems = {
   restaurante: [
     { label: "Inicio", href: "/" },
     { label: "Platillos", href: "/platillos" },
-    { label: "Pedidos", href: "/pedidos" },
+    { label: "Ventas", href: "/ventas" },
     { label: "Contacto", href: "/contacto" },
     { label: "Análisis", href: "/analisis" },
     { label: "ExploraIA", href: "/exploraia" },

@@ -25,9 +25,9 @@ export default function SalesPage() {
   const [editingInv, setEditingInv] = useState<InventoryItem | null>(null);
 
   return (
-    <main className="bg-[#FAF5F0] min-h-screen">
-      <div className="container mx-auto max-w-5xl py-10">
-        <div className="flex gap-4 mb-8">
+    <main className="bg-[#FAF5F0] min-h-screen px-6 py-10">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-wrap gap-4 mb-8">
           <Button variant="SignupGreen" onClick={() => setSaleModalOpen(true)}>
             Registrar venta
           </Button>

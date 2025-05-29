@@ -13,7 +13,9 @@ type Story = StoryObj<typeof AddDishModal>;
 
 export const Default: Story = {
   args: {
+    open: true,
+    onClose: action('onClose'),
     onSave: action('onSave'),
-    onCancel: action('onCancel'),
+    initialDish: undefined,
   },
 };

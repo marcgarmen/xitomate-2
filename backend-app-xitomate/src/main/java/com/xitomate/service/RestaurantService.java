@@ -142,12 +142,11 @@ public class RestaurantService {
     }
 
     public List<IngredientUsageDTO> getMostUsedIngredients(LocalDate date, String restaurantEmail) {
-        User restaurant = userRepository.find("email", restaurantEmail).firstResult();
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
 
         Map<SupplierProduct, BigDecimal> usageMap = new HashMap<>();
-        saleRepository.find("restaurant", restaurant).stream()
+        saleRepository.find("restaurant.email", restaurantEmail).stream()
             .filter(sale -> sale.fecha.isAfter(startOfDay) && sale.fecha.isBefore(endOfDay))
             .flatMap(sale -> sale.items.stream())
             .forEach(item -> {
@@ -171,12 +170,11 @@ public class RestaurantService {
     }
 
     public List<DishSalesDTO> getTopDishes(LocalDate date, String restaurantEmail) {
-        User restaurant = userRepository.find("email", restaurantEmail).firstResult();
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
 
         Map<Dish, Integer> salesMap = new HashMap<>();
-        saleRepository.find("restaurant", restaurant).stream()
+        saleRepository.find("restaurant.email", restaurantEmail).stream()
             .filter(sale -> sale.fecha.isAfter(startOfDay) && sale.fecha.isBefore(endOfDay))
             .flatMap(sale -> sale.items.stream())
             .forEach(item -> {

@@ -8,8 +8,10 @@ import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
@@ -48,16 +50,40 @@ public class FirebaseAuthFilter implements ContainerRequestFilter {
 
         String token = auth.substring(7);
         try {
-            // For now, we'll just verify that the token was created by our Firebase project
-            // In a production environment, you should implement proper token verification
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token, true);
-            ctx.setProperty("userEmail", decodedToken.getEmail());
-            ctx.setProperty("firebaseUid", decodedToken.getUid());
+            String email = decodedToken.getEmail();
+            
+            // Create a new SecurityContext with the user's email as the principal
+            SecurityContext securityContext = new SecurityContext() {
+                @Override
+                public Principal getUserPrincipal() {
+                    return () -> email;
+                }
+
+                @Override
+                public boolean isUserInRole(String role) {
+                    return true; // You can implement role checking here if needed
+                }
+
+                @Override
+                public boolean isSecure() {
+                    return ctx.getSecurityContext().isSecure();
+                }
+
+                @Override
+                public String getAuthenticationScheme() {
+                    return "Bearer";
+                }
+            };
+            
+            ctx.setSecurityContext(securityContext);
+            
         } catch (FirebaseAuthException e) {
-            // If token verification fails, we'll still allow the request to proceed
-            // This is not secure for production, but helps during development
-            ctx.setProperty("userEmail", "test@example.com");
-            ctx.setProperty("firebaseUid", "test-uid");
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid token: " + e.getMessage());
+            ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(error)
+                    .build());
         }
     }
 }

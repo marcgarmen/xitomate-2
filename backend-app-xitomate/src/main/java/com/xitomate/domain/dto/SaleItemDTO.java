@@ -1,7 +1,5 @@
 package com.xitomate.domain.dto;
 
-import java.math.BigDecimal;
-
 public class SaleItemDTO {
     private Long dishId;
     private Integer cantidad;

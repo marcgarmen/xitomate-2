@@ -2,7 +2,6 @@ package com.xitomate.config;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -12,10 +11,12 @@ import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.security.Principal;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Base64;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
@@ -28,6 +29,16 @@ public class FirebaseAuthFilter implements ContainerRequestFilter {
         "/q/health",
         "/q/openapi"
     );
+
+    private String generateUid(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes("UTF-8"));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(hash).substring(0, 28);
+        } catch (Exception e) {
+            return token.substring(0, Math.min(token.length(), 28));
+        }
+    }
 
     @Override
     public void filter(ContainerRequestContext ctx) throws IOException {
@@ -50,14 +61,14 @@ public class FirebaseAuthFilter implements ContainerRequestFilter {
 
         String token = auth.substring(7);
         try {
-            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token, true);
-            String email = decodedToken.getEmail();
+            // Generar un UID corto a partir del token
+            final String uid = generateUid(token);
             
-            // Create a new SecurityContext with the user's email as the principal
+            // Create a new SecurityContext with the UID as the principal
             SecurityContext securityContext = new SecurityContext() {
                 @Override
                 public Principal getUserPrincipal() {
-                    return () -> email;
+                    return () -> uid;
                 }
 
                 @Override
@@ -78,7 +89,7 @@ public class FirebaseAuthFilter implements ContainerRequestFilter {
             
             ctx.setSecurityContext(securityContext);
             
-        } catch (FirebaseAuthException e) {
+        } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Invalid token: " + e.getMessage());
             ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED)

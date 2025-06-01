@@ -1,43 +1,35 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { loginUser } from "@/service/auth";
-import { useRouter } from "next/navigation";
+import { useState } from 'react'
+import { loginUser, saveToken } from '@/service/auth'
+import { useRouter } from 'next/navigation'
 
 export function SignInFields() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const router = useRouter()
+  const [formData, setFormData] = useState({ email: '', password: '' })
+  const [loading, setLoading] = useState(false)
 
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     try {
-      const res = await loginUser(formData.email, formData.password);
-
-      // Guardar token y datos
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("userEmail", res.email);
-      localStorage.setItem("role", res.role);
-
-      alert("¡Inicio de sesión exitoso!");
-      router.push("/"); // redirige al home o dashboard
+      const res = await loginUser(formData.email, formData.password)
+      saveToken(res.token)
+      localStorage.setItem('userEmail', res.email)
+      localStorage.setItem('role', res.role)
+      alert('¡Inicio de sesión exitoso!')
+      router.push('/')
     } catch (err: any) {
-      console.error("Error al iniciar sesión:", err);
-      alert(err.message || "Error desconocido");
+      console.error(err)
+      alert(err.message || 'Error desconocido')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -64,8 +56,8 @@ export function SignInFields() {
         className="w-full bg-[#A1C374] text-white py-2 px-4 rounded-md hover:bg-[#8AB25A]"
         disabled={loading}
       >
-        {loading ? "Ingresando..." : "Ingresar"}
+        {loading ? 'Ingresando...' : 'Ingresar'}
       </button>
     </form>
-  );
+  )
 }

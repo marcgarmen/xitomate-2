@@ -1,5 +1,4 @@
-import SupplierCard from '@/components/suppliers/SupplierCard'
-import { SUPPLIERS } from '@/components/suppliers/constants'
+import SuppliersClient from '@/components/suppliers/SuppliersClient'
 
 export const metadata = { title: 'Proveedores | Xitomate' }
 
@@ -17,16 +16,12 @@ export default function SuppliersPage() {
         </div>
       </section>
 
-      <div className="container mx-auto max-w-6xl py-10 space-y-6">
+      <div className="container mx-auto max-w-6xl py-12 space-y-8">
         <p className="text-gray-700">
           Explora productores cercanos, revisa su cobertura y descubre sus mejores insumos.
         </p>
 
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-          {SUPPLIERS.map(s => (
-            <SupplierCard key={s.id} supplier={s} />
-          ))}
-        </div>
+        <SuppliersClient />
       </div>
     </main>
   )

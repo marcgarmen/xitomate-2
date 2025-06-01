@@ -1,41 +1,96 @@
 // src/service/auth.ts
+//--------------------------------------------------
+// 1.  Auth (registro / login)
+//--------------------------------------------------
 
-// Registro de usuario
 export async function registerUser(data: {
-  email: string;
-  password: string;
-  nombre: string;
-  role: string;
-  ubicacion: string;
+  email: string
+  password: string
+  nombre: string
+  role: string
+  ubicacion: string
 }) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Error ${response.status}: ${errorText}`);
-  }
-
-  return response.json();
+  })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
 }
 
-// Login de usuario
 export async function loginUser(email: string, password: string) {
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+  const url =
+    `${process.env.NEXT_PUBLIC_API_URL}/auth/login` +
+    `?email=${encodeURIComponent(email)}` +
+    `&password=${encodeURIComponent(password)}`
+  const res = await fetch(url, { method: 'POST' })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json() // → { token, role, email, userId }
+}
 
-  const response = await fetch(url, {
-    method: "POST",
-  });
+//--------------------------------------------------
+// 2.  Helpers
+//--------------------------------------------------
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Error ${response.status}: ${error}`);
-  }
+const TOKEN_KEY = 'xitomate_token'          // clave única
 
-  return response.json(); // { token, role, email, userId }
+export function getToken() {
+  if (typeof window === 'undefined') return ''
+  // compatibilidad si antes se guardó como 'token'
+  return (
+    localStorage.getItem(TOKEN_KEY) ??
+    localStorage.getItem('token') ??
+    ''
+  )
+}
+
+export function saveToken(token: string) {
+  if (typeof window !== 'undefined')
+    localStorage.setItem(TOKEN_KEY, token)
+}
+
+//--------------------------------------------------
+// 3.  Proveedores
+//--------------------------------------------------
+
+export type SupplierApi = {
+  id: number
+  nombre: string | null
+  ubicacion: string | null
+}
+
+export async function fetchSuppliers(): Promise<SupplierApi[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/suppliers`, {
+    cache: 'no-store',
+  })
+  if (!res.ok) throw new Error('No se pudo obtener proveedores')
+  return res.json()
+}
+
+//--------------------------------------------------
+// 4.  Catálogo de un proveedor
+//--------------------------------------------------
+
+export type ProductApi = {
+  id: number
+  nombre: string
+  unidad: string
+  precio: number
+  stock: number
+}
+
+export async function fetchSupplierCatalog(
+  supplierId: number,
+  token: string,
+): Promise<ProductApi[]> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/suppliers/${supplierId}/catalog`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    },
+  )
+  if (!res.ok) throw new Error('No se pudo obtener catálogo')
+  return res.json()
 }

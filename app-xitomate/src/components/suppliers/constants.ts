@@ -15,23 +15,24 @@ export const SUPPLIERS = [
   },
 ]
 
-export const PRODUCTS: Record<
-  string,
-  Array<{
-    id: string
-    name: string
-    unit: string
-    price: number
-    organic: boolean
-    updatedAt: string
-  }>
-> = {
+type Product = {
+  id: string
+  name: string
+  unit: string
+  price: number
+  stock: number
+  organic: boolean
+  updatedAt: string
+}
+
+export const PRODUCTS: Record<string, Product[]> = {
   'sup-001': [
     {
       id: 'p-01',
       name: 'Lechuga romana',
       unit: 'pieza',
       price: 18,
+      stock: 32,
       organic: true,
       updatedAt: '2025-05-15',
     },
@@ -40,6 +41,7 @@ export const PRODUCTS: Record<
       name: 'Tomate cherry',
       unit: 'kg',
       price: 45,
+      stock: 6,
       organic: true,
       updatedAt: '2025-05-18',
     },
@@ -50,6 +52,7 @@ export const PRODUCTS: Record<
       name: 'Queso cabra fresco',
       unit: 'kg',
       price: 120,
+      stock: 12,
       organic: false,
       updatedAt: '2025-05-19',
     },
@@ -58,6 +61,7 @@ export const PRODUCTS: Record<
       name: 'Miel de abeja',
       unit: 'kg',
       price: 90,
+      stock: 25,
       organic: true,
       updatedAt: '2025-05-20',
     },

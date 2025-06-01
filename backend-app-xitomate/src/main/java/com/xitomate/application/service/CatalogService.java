@@ -13,7 +13,7 @@ public class CatalogService {
     SupplierProductPanacheRepository repo;
 
     public List<SupplierProduct> getCatalog(Long supplierId, int page, int size) {
-        return repo.find("supplier.id = ?1 and activo = true order by fechaActualizacion desc", supplierId)
+        return repo.find("supplier.id = ?1 and stock > 0", supplierId)
                 .page(page, size)
                 .list();
     }

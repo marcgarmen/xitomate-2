@@ -7,6 +7,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +19,16 @@ public class AuthResource {
 
     @jakarta.inject.Inject
     EntityManager entityManager;
+
+    private String generateUid(String email) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(email.getBytes("UTF-8"));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(hash).substring(0, 28);
+        } catch (Exception e) {
+            return email.substring(0, Math.min(email.length(), 28));
+        }
+    }
 
     @POST
     @Path("/login")
@@ -39,8 +51,11 @@ public class AuthResource {
                         .build();
             }
 
-            // Create a custom token using the user's email as the UID
-            String customToken = FirebaseAuth.getInstance().createCustomToken(email);
+            // Generate a short UID from the email
+            String uid = generateUid(email);
+            
+            // Create a custom token using the generated UID
+            String customToken = FirebaseAuth.getInstance().createCustomToken(uid);
             
             Map<String, Object> response = new HashMap<>();
             response.put("token", customToken);

@@ -4,12 +4,13 @@ import SupplierCatalogClient from '@/components/suppliers/SupplierCatalogClient'
 
 export const metadata = { title: 'Catálogo del proveedor | Xitomate' }
 
-export default function SupplierProductsPage({
+export default async function SupplierProductsPage({
   params,
 }: {
   params: { supplierId: string }
 }) {
-  const supplierId = Number(params.supplierId)
+  const { supplierId } = await Promise.resolve(params)
+  const id = Number(supplierId)
 
   return (
     <main className="bg-[#FAF5F0] min-h-screen">
@@ -22,7 +23,7 @@ export default function SupplierProductsPage({
           Volver a proveedores
         </Link>
 
-        <SupplierCatalogClient supplierId={supplierId} />
+        <SupplierCatalogClient supplierId={id} />
       </div>
     </main>
   )

@@ -1,7 +1,5 @@
 package com.xitomate.infrastructure.rest;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.xitomate.domain.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.ws.rs.*;
@@ -39,22 +37,16 @@ public class AuthResource {
                         .build();
             }
 
-            // Create a custom token using the user's email as the UID
-            String customToken = FirebaseAuth.getInstance().createCustomToken(email);
+            // Create a simple token using the user's ID
+            String token = String.valueOf(user.id);
             
             Map<String, Object> response = new HashMap<>();
-            response.put("token", customToken);
+            response.put("token", token);
             response.put("email", user.email);
             response.put("role", user.role.toString());
             response.put("userId", user.id);
             
             return Response.ok(response).build();
-        } catch (FirebaseAuthException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Error with Firebase authentication: " + e.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(error)
-                    .build();
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Error during authentication: " + e.getMessage());

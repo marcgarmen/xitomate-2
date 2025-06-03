@@ -71,16 +71,23 @@ public class FirebaseAuthFilter implements ContainerRequestFilter {
                 throw new RuntimeException("User not found");
             }
 
-            // Verificar el rol y el ID del supplier en las rutas protegidas
-            if (path.startsWith("/supplier/") || path.startsWith("/suppliers/")) {
-                if (!user.role.name().equals("SUPPLIER")) {
-                    throw new RuntimeException("User is not a supplier");
-                }
-
-                // Verificar que el supplierId en la URL coincide con el ID del usuario
-                String supplierId = ctx.getUriInfo().getPathParameters().getFirst("supplierId");
-                if (supplierId != null && !supplierId.equals(user.id.toString())) {
-                    throw new RuntimeException("Unauthorized access to supplier resources");
+            // Permitir acceso a SUPPLIER y RESTAURANT para consulta de catálogo
+            if (path.startsWith("/suppliers/")) {
+                // Si es endpoint de catálogo, permitir a SUPPLIER y RESTAURANT
+                if (path.matches("/suppliers/\\d+/catalog/?")) {
+                    if (!user.role.name().equals("SUPPLIER") && !user.role.name().equals("RESTAURANT")) {
+                        throw new RuntimeException("User is not authorized to view supplier catalog");
+                    }
+                } else {
+                    // Para otros endpoints de suppliers, solo SUPPLIER
+                    if (!user.role.name().equals("SUPPLIER")) {
+                        throw new RuntimeException("User is not a supplier");
+                    }
+                    // Validar supplierId si aplica (por ejemplo, en endpoints de modificación)
+                    String supplierId = ctx.getUriInfo().getPathParameters().getFirst("supplierId");
+                    if (supplierId != null && !supplierId.equals(user.id.toString())) {
+                        throw new RuntimeException("Unauthorized access to supplier resources");
+                    }
                 }
             }
             // AGREGADO: Verificar el rol para rutas de restaurante

@@ -1,17 +1,14 @@
 'use client';
+import { INVENTORY_FORECAST } from './constants';
 import Etiqueta from '@/components/Test-Rosa/Etiqueta';
 
 export default function InventoryUsageTable() {
-  const items = [
-    { name: 'Jitomate', stock: 10, forecast: 12 },
-    { name: 'Cebolla', stock: 8, forecast: 5 },
-  ];
-
   return (
     <div className="mt-8">
       <h2 className="text-2xl font-bold mb-4">
         Inventario actual vs uso estimado
       </h2>
+
       <table className="w-full rounded-lg overflow-hidden text-left">
         <thead className="bg-[#9BB968] text-black">
           <tr>
@@ -23,15 +20,12 @@ export default function InventoryUsageTable() {
           </tr>
         </thead>
         <tbody>
-          {items.map((it, idx) => {
-            const diff = it.stock - it.forecast;
+          {INVENTORY_FORECAST.map((it, idx) => {
+            const diff  = it.stock - it.forecast;
             const state = diff < 0 ? 'Faltante' : 'Sobrante';
-            const color = diff < 0 ? 'error' : 'success';
+            const color = diff < 0 ? 'error'    : 'success';
             return (
-              <tr
-                key={it.name}
-                className={idx % 2 ? 'bg-[#EDF6E7]' : 'bg-[#F5FAF2]'}
-              >
+              <tr key={it.name} className={idx % 2 ? 'bg-[#EDF6E7]' : 'bg-[#F5FAF2]'}>
                 <td className="p-3">{it.name}</td>
                 <td className="p-3">{it.stock} kg</td>
                 <td className="p-3">{it.forecast} kg</td>
@@ -44,15 +38,6 @@ export default function InventoryUsageTable() {
           })}
         </tbody>
       </table>
-
-      <div className="mt-2">
-        <a
-          href="#"
-          className="text-sm text-green-800 underline underline-offset-2"
-        >
-          Ver recomendación de compra
-        </a>
-      </div>
     </div>
   );
 }

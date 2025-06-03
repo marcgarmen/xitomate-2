@@ -1,6 +1,6 @@
-export type EtiquetaColor = 'default' | 'success' | 'error' | 'info';
+export type EtiquetaColor = 'default' | 'success' | 'warning' | 'error' | 'info'
 
 export interface EtiquetaProps {
-  text: string;
-  color?: EtiquetaColor;
+  text: string
+  color?: EtiquetaColor
 }

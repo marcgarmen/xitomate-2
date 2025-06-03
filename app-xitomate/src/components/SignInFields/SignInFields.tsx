@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { loginUser } from "@/service/auth";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { loginUser } from '@/service/auth';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/components/toast/ToastProvider';
 
 export function SignInFields() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const { login } = useAuth();
+  const toast = useToast();
 
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,17 +23,12 @@ export function SignInFields() {
 
     try {
       const res = await loginUser(formData.email, formData.password);
-
-      // Guardar token y datos
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("userEmail", res.email);
-      localStorage.setItem("role", res.role);
-
-      alert("¡Inicio de sesión exitoso!");
-      router.push("/"); // redirige al home o dashboard
+      login(res.token, res.role.toLowerCase());
+      localStorage.setItem('userEmail', res.email);
+      toast('success', '¡Inicio de sesión exitoso!');
+      router.push('/');
     } catch (err: any) {
-      console.error("Error al iniciar sesión:", err);
-      alert(err.message || "Error desconocido");
+      toast('error', err?.response?.data?.error || err.message || 'Credenciales incorrectas');
     } finally {
       setLoading(false);
     }
@@ -64,7 +59,7 @@ export function SignInFields() {
         className="w-full bg-[#A1C374] text-white py-2 px-4 rounded-md hover:bg-[#8AB25A]"
         disabled={loading}
       >
-        {loading ? "Ingresando..." : "Ingresar"}
+        {loading ? 'Ingresando...' : 'Ingresar'}
       </button>
     </form>
   );

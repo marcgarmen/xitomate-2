@@ -45,7 +45,7 @@ export default function AddDishModal({
       setDishName('');
       setRows([{ id: 1, name: '', quantity: '' }]);
     }
-  }, [initialDish]);
+  }, [initialDish, open]);
 
   const addRow = () => {
     const last = rows.at(-1)!;

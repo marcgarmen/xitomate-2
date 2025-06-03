@@ -5,7 +5,6 @@ import java.util.List;
 
 public class DishDTO {
     private String nombre;
-    private String descripcion;
     private BigDecimal precio;
     private String categoria;
     private List<DishIngredientDTO> ingredientes;
@@ -20,14 +19,6 @@ public class DishDTO {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
     }
 
     public BigDecimal getPrecio() {

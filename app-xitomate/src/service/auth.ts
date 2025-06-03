@@ -37,5 +37,32 @@ export async function loginUser(email: string, password: string) {
     throw new Error(`Error ${response.status}: ${error}`);
   }
 
-  return response.json(); // { token, role, email, userId }
+  const data = await response.json();
+  
+  // Guardar el token en localStorage
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('user', JSON.stringify({
+    email: data.email,
+    role: data.role,
+    userId: data.userId
+  }));
+
+  return data;
+}
+
+// Logout de usuario
+export function logoutUser() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+}
+
+// Obtener el token actual
+export function getToken() {
+  return localStorage.getItem('token');
+}
+
+// Obtener el usuario actual
+export function getCurrentUser() {
+  const userStr = localStorage.getItem('user');
+  return userStr ? JSON.parse(userStr) : null;
 }

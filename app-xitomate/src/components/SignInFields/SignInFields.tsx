@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { loginUser } from '@/service/auth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/components/toast/ToastProvider';
 
 export function SignInFields() {
   const router = useRouter();
-  const { login } = useAuth();       // ← usa login() del contexto
+  const { login } = useAuth();
+  const toast = useToast();
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -21,13 +23,12 @@ export function SignInFields() {
 
     try {
       const res = await loginUser(formData.email, formData.password);
-      login(res.token, res.role.toLowerCase());   // guarda y actualiza rol
+      login(res.token, res.role.toLowerCase());
       localStorage.setItem('userEmail', res.email);
-      alert('¡Inicio de sesión exitoso!');
+      toast('success', '¡Inicio de sesión exitoso!');
       router.push('/');
     } catch (err: any) {
-      console.error(err);
-      alert(err.message || 'Error desconocido');
+      toast('error', err?.response?.data?.error || err.message || 'Credenciales incorrectas');
     } finally {
       setLoading(false);
     }

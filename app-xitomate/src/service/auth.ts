@@ -50,6 +50,15 @@ export function saveToken(token: string) {
     localStorage.setItem(TOKEN_KEY, token)
 }
 
+export function logoutUser() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("userEmail");
+  }
+}
+
 //--------------------------------------------------
 // 3.  Proveedores
 //--------------------------------------------------

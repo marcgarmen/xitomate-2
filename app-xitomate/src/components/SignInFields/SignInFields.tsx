@@ -1,35 +1,37 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { loginUser, saveToken } from '@/service/auth'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react';
+import { loginUser } from '@/service/auth';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export function SignInFields() {
-  const router = useRouter()
-  const [formData, setFormData] = useState({ email: '', password: '' })
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const { login } = useAuth();       // ← usa login() del contexto
+
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const res = await loginUser(formData.email, formData.password)
-      saveToken(res.token)
-      localStorage.setItem('userEmail', res.email)
-      localStorage.setItem('role', res.role)
-      alert('¡Inicio de sesión exitoso!')
-      router.push('/')
+      const res = await loginUser(formData.email, formData.password);
+      login(res.token, res.role.toLowerCase());   // guarda y actualiza rol
+      localStorage.setItem('userEmail', res.email);
+      alert('¡Inicio de sesión exitoso!');
+      router.push('/');
     } catch (err: any) {
-      console.error(err)
-      alert(err.message || 'Error desconocido')
+      console.error(err);
+      alert(err.message || 'Error desconocido');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -59,5 +61,5 @@ export function SignInFields() {
         {loading ? 'Ingresando...' : 'Ingresar'}
       </button>
     </form>
-  )
+  );
 }

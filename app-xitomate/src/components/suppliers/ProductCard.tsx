@@ -1,27 +1,31 @@
 'use client'
 
-import { Card, CardContent } from '@/components/ui/card'
-import Etiqueta from '@/components/Test-Rosa/Etiqueta'
-import { EtiquetaColor } from '@/components/Test-Rosa/Etiqueta.types'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ProductApi } from '@/service/auth'
 
-interface Props {
+type Props = {
   product: ProductApi
+  selected: boolean
+  onToggle: (p: ProductApi) => void
 }
 
-export default function ProductCard({ product }: Props) {
-  const stockColor = (): EtiquetaColor =>
-    product.stock === 0 ? 'error' : product.stock < 10 ? 'warning' : 'success'
-
+export default function ProductCard({ product, selected, onToggle }: Props) {
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-4 space-y-1">
-        <h4 className="font-semibold">{product.nombre}</h4>
-        <p className="text-sm text-gray-600">Unidad: {product.unidad}</p>
-        <p className="text-sm text-gray-600">
-          Precio:&nbsp;<span className="font-bold">${product.precio}</span>
+    <Card
+      onClick={() => onToggle(product)}
+      className={`cursor-pointer transition hover:shadow-md ${
+        selected ? 'ring-2 ring-green-500' : ''
+      }`}
+    >
+      <CardHeader className="text-base font-semibold leading-snug">
+        {product.nombre}
+      </CardHeader>
+
+      <CardContent className="space-y-1">
+        <p className="text-sm">${product.precio} MXN</p>
+        <p className="text-xs text-gray-600">
+          Stock: {product.stock} {product.unidad}
         </p>
-        <Etiqueta text={`Stock: ${product.stock}`} color={stockColor()} />
       </CardContent>
     </Card>
   )

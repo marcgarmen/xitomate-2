@@ -6,6 +6,7 @@ public class DishIngredientDTO {
     private Long supplierProductId;
     private BigDecimal cantidad;
     private String unidad;
+    private String nombreLibre;
 
     // Constructor
     public DishIngredientDTO() {}
@@ -33,5 +34,13 @@ public class DishIngredientDTO {
 
     public void setUnidad(String unidad) {
         this.unidad = unidad;
+    }
+
+    public String getNombreLibre() {
+        return nombreLibre;
+    }
+
+    public void setNombreLibre(String nombreLibre) {
+        this.nombreLibre = nombreLibre;
     }
 } 

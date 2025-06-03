@@ -6,6 +6,7 @@ import com.xitomate.domain.enums.UserRole;
 import com.xitomate.repository.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +16,9 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class RestaurantService {
+
+    @Inject
+    EntityManager entityManager;
 
     @Inject
     UserRepository userRepository;
@@ -52,39 +56,96 @@ public class RestaurantService {
     }
 
     @Transactional
-    public DishDTO createDish(DishDTO dishDTO, String restaurantEmail) {
-        User restaurant = userRepository.find("email", restaurantEmail).firstResult();
-        Dish dish = new Dish();
-        dish.nombre = dishDTO.getNombre();
-        dish.descripcion = dishDTO.getDescripcion();
-        dish.precio = dishDTO.getPrecio();
-        dish.categoria = dishDTO.getCategoria();
-        dish.restaurant = restaurant;
-        dish.activo = true;
+    public DishDTO createDish(DishDTO dishDTO, String token) {
+        try {
+            // Buscar el restaurante por email
+            User restaurant = entityManager.createQuery(
+                "SELECT u FROM User u WHERE u.email = :email", User.class)
+                .setParameter("email", "restaurant@test.com")
+                .getSingleResult();
 
-        List<DishIngredient> ingredients = dishDTO.getIngredientes().stream()
-            .map(di -> {
+            if (restaurant == null) {
+                throw new RuntimeException("Restaurant not found");
+            }
+
+            // Validar que el plato tenga ingredientes
+            if (dishDTO.getIngredientes() == null || dishDTO.getIngredientes().isEmpty()) {
+                throw new RuntimeException("El plato debe tener al menos un ingrediente");
+            }
+
+            // Crear el plato
+            Dish dish = new Dish();
+            dish.nombre = dishDTO.getNombre();
+            dish.precio = dishDTO.getPrecio();
+            dish.categoria = dishDTO.getCategoria();
+            dish.restaurant = restaurant;
+
+            // Persistir el plato primero
+            entityManager.persist(dish);
+            entityManager.flush();
+
+            // Crear los ingredientes
+            List<DishIngredient> ingredients = new ArrayList<>();
+            for (DishIngredientDTO di : dishDTO.getIngredientes()) {
                 DishIngredient ingredient = new DishIngredient();
                 ingredient.dish = dish;
-                ingredient.supplierProduct = supplierProductRepository.findById(di.getSupplierProductId());
                 ingredient.cantidad = di.getCantidad();
                 ingredient.unidad = di.getUnidad();
-                return ingredient;
-            })
-            .collect(Collectors.toList());
 
-        dish.ingredientes = ingredients;
-        dishRepository.persist(dish);
-        return dishDTO;
+                if (di.getSupplierProductId() != null) {
+                    SupplierProduct product = entityManager.find(SupplierProduct.class, di.getSupplierProductId());
+                    if (product == null) {
+                        throw new RuntimeException("Producto no encontrado con ID: " + di.getSupplierProductId() + 
+                            ". Asegúrate de usar un ID válido de la lista de productos disponibles.");
+                    }
+                    // Validar que la unidad coincida
+                    if (!product.unidad.equalsIgnoreCase(di.getUnidad())) {
+                        throw new RuntimeException("La unidad del ingrediente '" + product.nombre + 
+                            "' debe ser '" + product.unidad + "', no '" + di.getUnidad() + "'");
+                    }
+                    ingredient.supplierProduct = product;
+                    ingredient.nombreLibre = null;
+                } else {
+                    // Ingrediente libre
+                    ingredient.supplierProduct = null;
+                    ingredient.nombreLibre = di.getNombreLibre();
+                }
+                ingredients.add(ingredient);
+            }
+
+            // Asignar los ingredientes al plato
+            dish.ingredientes = ingredients;
+            
+            // Persistir todo en una sola transacción
+            entityManager.persist(dish);
+            entityManager.flush();
+
+            return dishDTO;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al crear el plato: " + e.getMessage());
+        }
     }
 
-    public List<DishDTO> getDishes(String restaurantEmail) {
-        User restaurant = userRepository.find("email", restaurantEmail).firstResult();
-        return dishRepository.find("restaurant", restaurant).stream()
+    public List<DishDTO> getDishes(String token) {
+        // Buscar el restaurante por email
+        User restaurant = entityManager.createQuery(
+            "SELECT u FROM User u WHERE u.email = :email", User.class)
+            .setParameter("email", "restaurant@test.com")
+            .getSingleResult();
+
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found");
+        }
+
+        List<Dish> dishes = entityManager.createQuery(
+            "SELECT d FROM Dish d WHERE d.restaurant = :restaurant", Dish.class)
+            .setParameter("restaurant", restaurant)
+            .getResultList();
+
+        return dishes.stream()
             .map(dish -> {
                 DishDTO dto = new DishDTO();
                 dto.setNombre(dish.nombre);
-                dto.setDescripcion(dish.descripcion);
                 dto.setPrecio(dish.precio);
                 dto.setCategoria(dish.categoria);
                 return dto;
@@ -93,8 +154,12 @@ public class RestaurantService {
     }
 
     @Transactional
-    public SaleDTO createSale(SaleDTO saleDTO, String restaurantEmail) {
-        User restaurant = userRepository.find("email", restaurantEmail).firstResult();
+    public SaleDTO createSale(SaleDTO saleDTO, String email) {
+        User restaurant = userRepository.find("email", email).firstResult();
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with email: " + email);
+        }
+
         Sale sale = new Sale();
         sale.restaurant = restaurant;
         sale.fecha = LocalDateTime.now();
@@ -134,19 +199,28 @@ public class RestaurantService {
     }
 
     @Transactional
-    public void addStock(StockDTO stockDTO, String restaurantEmail) {
-        User restaurant = userRepository.find("email", restaurantEmail).firstResult();
+    public void addStock(StockDTO stockDTO, String email) {
+        User restaurant = userRepository.find("email", email).firstResult();
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with email: " + email);
+        }
+
         SupplierProduct product = supplierProductRepository.findById(stockDTO.getSupplierProductId());
         product.stock = product.stock + stockDTO.getCantidad().intValue();
         supplierProductRepository.persist(product);
     }
 
-    public List<IngredientUsageDTO> getMostUsedIngredients(LocalDate date, String restaurantEmail) {
+    public List<IngredientUsageDTO> getMostUsedIngredients(LocalDate date, String email) {
+        User restaurant = userRepository.find("email", email).firstResult();
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with email: " + email);
+        }
+
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
 
         Map<SupplierProduct, BigDecimal> usageMap = new HashMap<>();
-        saleRepository.find("restaurant.email", restaurantEmail).stream()
+        saleRepository.find("restaurant", restaurant).stream()
             .filter(sale -> sale.fecha.isAfter(startOfDay) && sale.fecha.isBefore(endOfDay))
             .flatMap(sale -> sale.items.stream())
             .forEach(item -> {
@@ -169,12 +243,17 @@ public class RestaurantService {
             .collect(Collectors.toList());
     }
 
-    public List<DishSalesDTO> getTopDishes(LocalDate date, String restaurantEmail) {
+    public List<DishSalesDTO> getTopDishes(LocalDate date, String email) {
+        User restaurant = userRepository.find("email", email).firstResult();
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with email: " + email);
+        }
+
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
 
         Map<Dish, Integer> salesMap = new HashMap<>();
-        saleRepository.find("restaurant.email", restaurantEmail).stream()
+        saleRepository.find("restaurant", restaurant).stream()
             .filter(sale -> sale.fecha.isAfter(startOfDay) && sale.fecha.isBefore(endOfDay))
             .flatMap(sale -> sale.items.stream())
             .forEach(item -> {
@@ -192,8 +271,12 @@ public class RestaurantService {
             .collect(Collectors.toList());
     }
 
-    public List<SaleDTO> getDailySales(LocalDate date, String restaurantEmail) {
-        User restaurant = userRepository.find("email", restaurantEmail).firstResult();
+    public List<SaleDTO> getDailySales(LocalDate date, String email) {
+        User restaurant = userRepository.find("email", email).firstResult();
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with email: " + email);
+        }
+
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
 
@@ -215,8 +298,12 @@ public class RestaurantService {
             .collect(Collectors.toList());
     }
 
-    public List<SupplierProductDTO> getLowStockIngredients(String restaurantEmail) {
-        User restaurant = userRepository.find("email", restaurantEmail).firstResult();
+    public List<SupplierProductDTO> getLowStockIngredients(String email) {
+        User restaurant = userRepository.find("email", email).firstResult();
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with email: " + email);
+        }
+
         return supplierProductRepository.find("stock < ?1", 5).stream()
             .map(product -> {
                 SupplierProductDTO dto = new SupplierProductDTO();
@@ -227,5 +314,81 @@ public class RestaurantService {
                 return dto;
             })
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public DishDTO updateDish(Long dishId, DishDTO dishDTO, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with id: " + userId);
+        }
+
+        Dish dish = entityManager.find(Dish.class, dishId);
+        if (dish == null) {
+            throw new RuntimeException("Dish not found with id: " + dishId);
+        }
+
+        // Verificar que el plato pertenece al restaurante
+        if (!dish.restaurant.id.equals(restaurant.id)) {
+            throw new RuntimeException("Unauthorized: This dish does not belong to your restaurant");
+        }
+
+        // Actualizar datos básicos
+        dish.nombre = dishDTO.getNombre();
+        dish.precio = dishDTO.getPrecio();
+        dish.categoria = dishDTO.getCategoria();
+
+        // Eliminar ingredientes existentes
+        dish.ingredientes.clear();
+
+        // Crear nuevos ingredientes
+        if (dishDTO.getIngredientes() != null && !dishDTO.getIngredientes().isEmpty()) {
+            for (DishIngredientDTO di : dishDTO.getIngredientes()) {
+                DishIngredient ingredient = new DishIngredient();
+                ingredient.dish = dish;
+                ingredient.cantidad = di.getCantidad();
+                ingredient.unidad = di.getUnidad();
+
+                if (di.getSupplierProductId() != null) {
+                    SupplierProduct product = entityManager.find(SupplierProduct.class, di.getSupplierProductId());
+                    if (product == null) {
+                        throw new RuntimeException("Producto no encontrado con ID: " + di.getSupplierProductId());
+                    }
+                    if (!product.unidad.equalsIgnoreCase(di.getUnidad())) {
+                        throw new RuntimeException("La unidad del ingrediente '" + product.nombre + 
+                            "' debe ser '" + product.unidad + "', no '" + di.getUnidad() + "'");
+                    }
+                    ingredient.supplierProduct = product;
+                    ingredient.nombreLibre = null;
+                } else {
+                    ingredient.supplierProduct = null;
+                    ingredient.nombreLibre = di.getNombreLibre();
+                }
+                dish.ingredientes.add(ingredient);
+            }
+        }
+
+        entityManager.merge(dish);
+        return dishDTO;
+    }
+
+    @Transactional
+    public void deleteDish(Long dishId, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with id: " + userId);
+        }
+
+        Dish dish = entityManager.find(Dish.class, dishId);
+        if (dish == null) {
+            throw new RuntimeException("Dish not found with id: " + dishId);
+        }
+
+        // Verificar que el plato pertenece al restaurante
+        if (!dish.restaurant.id.equals(restaurant.id)) {
+            throw new RuntimeException("Unauthorized: This dish does not belong to your restaurant");
+        }
+
+        entityManager.remove(dish);
     }
 } 

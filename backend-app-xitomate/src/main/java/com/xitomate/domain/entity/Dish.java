@@ -15,10 +15,8 @@ public class Dish {
     public User restaurant;
 
     public String nombre;
-    public String descripcion;
     public BigDecimal precio;
     public String categoria;
-    public Boolean activo;
 
     @OneToMany(mappedBy = "dish", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<DishIngredient> ingredientes;

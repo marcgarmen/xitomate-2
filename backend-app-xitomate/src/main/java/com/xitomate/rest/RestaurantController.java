@@ -8,9 +8,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Path("/restaurant")
 @Produces(MediaType.APPLICATION_JSON)
@@ -38,15 +40,24 @@ public class RestaurantController {
     @POST
     @Path("/dishes")
     @RolesAllowed("RESTAURANT")
-    public DishDTO createDish(DishDTO dishDTO) {
-        return restaurantService.createDish(dishDTO, securityContext.getUserPrincipal().getName());
+    public Response createDish(DishDTO dishDTO) {
+        try {
+            String token = securityContext.getUserPrincipal().getName();
+            DishDTO createdDish = restaurantService.createDish(dishDTO, token);
+            return Response.ok(createdDish).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
     }
 
     @GET
     @Path("/dishes")
     @RolesAllowed("RESTAURANT")
     public List<DishDTO> getDishes() {
-        return restaurantService.getDishes(securityContext.getUserPrincipal().getName());
+        String token = securityContext.getUserPrincipal().getName();
+        return restaurantService.getDishes(token);
     }
 
     @POST
@@ -96,5 +107,35 @@ public class RestaurantController {
     @RolesAllowed("RESTAURANT")
     public List<SupplierProductDTO> getLowStockIngredients() {
         return restaurantService.getLowStockIngredients(securityContext.getUserPrincipal().getName());
+    }
+
+    @PUT
+    @Path("/dishes/{id}")
+    @RolesAllowed("RESTAURANT")
+    public Response updateDish(@PathParam("id") Long id, DishDTO dishDTO) {
+        try {
+            String token = securityContext.getUserPrincipal().getName();
+            DishDTO updatedDish = restaurantService.updateDish(id, dishDTO, token);
+            return Response.ok(updatedDish).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+    }
+
+    @DELETE
+    @Path("/dishes/{id}")
+    @RolesAllowed("RESTAURANT")
+    public Response deleteDish(@PathParam("id") Long id) {
+        try {
+            String token = securityContext.getUserPrincipal().getName();
+            restaurantService.deleteDish(id, token);
+            return Response.ok().build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
     }
 } 

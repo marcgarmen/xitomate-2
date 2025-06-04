@@ -315,4 +315,80 @@ public class RestaurantService {
             })
             .collect(Collectors.toList());
     }
+
+    @Transactional
+    public DishDTO updateDish(Long dishId, DishDTO dishDTO, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with id: " + userId);
+        }
+
+        Dish dish = entityManager.find(Dish.class, dishId);
+        if (dish == null) {
+            throw new RuntimeException("Dish not found with id: " + dishId);
+        }
+
+        // Verificar que el plato pertenece al restaurante
+        if (!dish.restaurant.id.equals(restaurant.id)) {
+            throw new RuntimeException("Unauthorized: This dish does not belong to your restaurant");
+        }
+
+        // Actualizar datos básicos
+        dish.nombre = dishDTO.getNombre();
+        dish.precio = dishDTO.getPrecio();
+        dish.categoria = dishDTO.getCategoria();
+
+        // Eliminar ingredientes existentes
+        dish.ingredientes.clear();
+
+        // Crear nuevos ingredientes
+        if (dishDTO.getIngredientes() != null && !dishDTO.getIngredientes().isEmpty()) {
+            for (DishIngredientDTO di : dishDTO.getIngredientes()) {
+                DishIngredient ingredient = new DishIngredient();
+                ingredient.dish = dish;
+                ingredient.cantidad = di.getCantidad();
+                ingredient.unidad = di.getUnidad();
+
+                if (di.getSupplierProductId() != null) {
+                    SupplierProduct product = entityManager.find(SupplierProduct.class, di.getSupplierProductId());
+                    if (product == null) {
+                        throw new RuntimeException("Producto no encontrado con ID: " + di.getSupplierProductId());
+                    }
+                    if (!product.unidad.equalsIgnoreCase(di.getUnidad())) {
+                        throw new RuntimeException("La unidad del ingrediente '" + product.nombre + 
+                            "' debe ser '" + product.unidad + "', no '" + di.getUnidad() + "'");
+                    }
+                    ingredient.supplierProduct = product;
+                    ingredient.nombreLibre = null;
+                } else {
+                    ingredient.supplierProduct = null;
+                    ingredient.nombreLibre = di.getNombreLibre();
+                }
+                dish.ingredientes.add(ingredient);
+            }
+        }
+
+        entityManager.merge(dish);
+        return dishDTO;
+    }
+
+    @Transactional
+    public void deleteDish(Long dishId, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with id: " + userId);
+        }
+
+        Dish dish = entityManager.find(Dish.class, dishId);
+        if (dish == null) {
+            throw new RuntimeException("Dish not found with id: " + dishId);
+        }
+
+        // Verificar que el plato pertenece al restaurante
+        if (!dish.restaurant.id.equals(restaurant.id)) {
+            throw new RuntimeException("Unauthorized: This dish does not belong to your restaurant");
+        }
+
+        entityManager.remove(dish);
+    }
 } 

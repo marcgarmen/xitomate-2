@@ -298,13 +298,13 @@ public class RestaurantService {
             .collect(Collectors.toList());
     }
 
-    public List<SupplierProductDTO> getLowStockIngredients(String email) {
-        User restaurant = userRepository.find("email", email).firstResult();
+    public List<SupplierProductDTO> getLowStockIngredients(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) {
-            throw new RuntimeException("Restaurant not found with email: " + email);
+            throw new RuntimeException("Restaurant not found with id: " + userId);
         }
 
-        return supplierProductRepository.find("stock < ?1", 5).stream()
+        return supplierProductRepository.find("stock < ?1", 5).list().stream()
             .map(product -> {
                 SupplierProductDTO dto = new SupplierProductDTO();
                 dto.setNombre(product.nombre);
@@ -390,5 +390,162 @@ public class RestaurantService {
         }
 
         entityManager.remove(dish);
+    }
+
+    // --- Métodos de análisis para RestaurantAnalysisController ---
+    public List<DishSalesDTO> getTopDishesForAnalysis(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) throw new RuntimeException("Restaurant not found");
+
+        Map<String, Integer> dishSales = new HashMap<>();
+        saleRepository.find("restaurant", restaurant).list().stream()
+            .flatMap(sale -> sale.items.stream())
+            .forEach(item -> {
+                String dishName = item.dish.nombre;
+                dishSales.put(dishName, dishSales.getOrDefault(dishName, 0) + item.cantidad);
+            });
+
+        return dishSales.entrySet().stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .limit(3)
+            .map(entry -> {
+                DishSalesDTO dto = new DishSalesDTO();
+                dto.setNombre(entry.getKey());
+                dto.setCantidad(entry.getValue());
+                return dto;
+            })
+            .collect(Collectors.toList());
+    }
+
+    public Map<String, List<IngredientUsageDTO>> getIngredientUsageForAnalysis(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) throw new RuntimeException("Restaurant not found");
+
+        Map<String, IngredientUsageDTO> usageMap = new HashMap<>();
+        saleRepository.find("restaurant", restaurant).list().stream()
+            .flatMap(sale -> sale.items.stream())
+            .forEach(item -> {
+                for (DishIngredient ingredient : item.dish.ingredientes) {
+                    String name = ingredient.supplierProduct != null
+                        ? ingredient.supplierProduct.nombre
+                        : ingredient.nombreLibre;
+                    if (name == null) continue;
+                    BigDecimal used = ingredient.cantidad.multiply(new BigDecimal(item.cantidad));
+                    if (usageMap.containsKey(name)) {
+                        IngredientUsageDTO dto = usageMap.get(name);
+                        dto.setCantidad(dto.getCantidad().add(used));
+                    } else {
+                        IngredientUsageDTO dto = new IngredientUsageDTO();
+                        dto.setNombre(name);
+                        dto.setCantidad(used);
+                        dto.setUnidad(ingredient.unidad);
+                        usageMap.put(name, dto);
+                    }
+                }
+            });
+
+        List<IngredientUsageDTO> sorted = usageMap.values().stream()
+            .sorted(Comparator.comparing(IngredientUsageDTO::getCantidad).reversed())
+            .collect(Collectors.toList());
+
+        Map<String, List<IngredientUsageDTO>> result = new HashMap<>();
+        result.put("mostUsed", sorted.stream().limit(3).collect(Collectors.toList()));
+        result.put("leastUsed", sorted.stream().skip(Math.max(0, sorted.size() - 2)).collect(Collectors.toList()));
+        return result;
+    }
+
+    public Map<String, Object> getDailyIncomeForAnalysis(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) throw new RuntimeException("Restaurant not found");
+
+        BigDecimal total = saleRepository.find("restaurant", restaurant).list().stream()
+            .filter(sale -> sale.fecha.toLocalDate().equals(LocalDate.now()))
+            .map(sale -> sale.total)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("date", LocalDate.now());
+        result.put("income", total);
+        return result;
+    }
+
+    public Map<String, String> getTopSupplierForAnalysis(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) throw new RuntimeException("Restaurant not found");
+
+        Map<String, Integer> supplierCount = new HashMap<>();
+        saleRepository.find("restaurant", restaurant).list().stream()
+            .flatMap(sale -> sale.items.stream())
+            .forEach(item -> {
+                for (DishIngredient ingredient : item.dish.ingredientes) {
+                    if (ingredient.supplierProduct != null && ingredient.supplierProduct.supplier != null) {
+                        String supplierName = ingredient.supplierProduct.supplier.nombre;
+                        supplierCount.put(supplierName, supplierCount.getOrDefault(supplierName, 0) + 1);
+                    }
+                }
+            });
+
+        String topSupplier = supplierCount.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElse("Sin proveedor");
+
+        Map<String, String> result = new HashMap<>();
+        result.put("topSupplier", topSupplier);
+        return result;
+    }
+
+    public List<Map<String, Object>> getIngredientUsageHistoryForForecast(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) throw new RuntimeException("Restaurant not found");
+
+        Map<String, Map<LocalDate, BigDecimal>> history = new HashMap<>();
+        saleRepository.find("restaurant", restaurant).list().forEach(sale -> {
+            LocalDate date = sale.fecha.toLocalDate();
+            for (SaleItem item : sale.items) {
+                for (DishIngredient ingredient : item.dish.ingredientes) {
+                    String name = ingredient.supplierProduct != null
+                        ? ingredient.supplierProduct.nombre
+                        : ingredient.nombreLibre;
+                    if (name == null) continue;
+                    BigDecimal used = ingredient.cantidad.multiply(new BigDecimal(item.cantidad));
+                    history.computeIfAbsent(name, k -> new HashMap<>());
+                    Map<LocalDate, BigDecimal> dateMap = history.get(name);
+                    dateMap.put(date, dateMap.getOrDefault(date, BigDecimal.ZERO).add(used));
+                }
+            }
+        });
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, Map<LocalDate, BigDecimal>> entry : history.entrySet()) {
+            Map<String, Object> obj = new HashMap<>();
+            obj.put("ingredient", entry.getKey());
+            List<String> dates = entry.getValue().keySet().stream()
+                .sorted()
+                .map(LocalDate::toString)
+                .collect(Collectors.toList());
+            List<Double> quantities = dates.stream()
+                .map(d -> entry.getValue().getOrDefault(LocalDate.parse(d), BigDecimal.ZERO).doubleValue())
+                .collect(Collectors.toList());
+            obj.put("dates", dates);
+            obj.put("quantities", quantities);
+            result.add(obj);
+        }
+        return result;
+    }
+
+    public List<Map<String, Object>> getCurrentInventory(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) throw new RuntimeException("Restaurant not found");
+
+        return supplierProductRepository.listAll().stream()
+            .map(product -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("ingredient", product.nombre);
+                map.put("stock", product.stock);
+                map.put("unit", product.unidad);
+                return map;
+            })
+            .collect(Collectors.toList());
     }
 } 

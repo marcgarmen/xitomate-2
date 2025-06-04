@@ -1,27 +1,65 @@
 'use client';
+import { useEffect, useState } from 'react';
+import { getToken } from '@/service/auth';
 import {
-  DISH_SALES,
-  INGREDIENT_USAGE,
-  DAILY_INCOME_PESOS,
-  LOW_STOCK,
-  MOST_USED_SUPPLIER,
-} from './constants';
-
-const topDishes   = DISH_SALES.slice(0, 3).map(d => d.name).join(', ');
-const mostUsedIns = INGREDIENT_USAGE.slice(0, 3).map(i => i.name).join(', ');
-const leastUsed   = INGREDIENT_USAGE.slice(-2).map(i => i.name).join(', ');
-const lowStock    = LOW_STOCK.join(', ');
-
-const cards = [
-  { title: 'Top 3 platillos más vendidos', value: topDishes },
-  { title: 'Insumos más usados',           value: mostUsedIns },
-  { title: 'Insumos menos usados',         value: leastUsed },
-  { title: 'Ingreso diario',    value: `$${DAILY_INCOME_PESOS} MXN` },
-  { title: 'Productos con bajo stock',     value: lowStock },
-  { title: 'Proveedor más usado',          value: MOST_USED_SUPPLIER },
-];
+  fetchTopDishes,
+  fetchIngredientUsage,
+  fetchDailyIncome,
+  fetchLowStock,
+  fetchTopSupplier,
+  type DishSales,
+  type IngredientUsage,
+  type DailyIncome,
+  type LowStock,
+  type TopSupplier,
+} from '@/service/analysis';
 
 export default function DashboardCards() {
+  const [data, setData] = useState<{
+    topDishes: DishSales[]
+    ingredientUsage: { mostUsed: IngredientUsage[], leastUsed: IngredientUsage[] }
+    dailyIncome: DailyIncome
+    lowStock: LowStock[]
+    topSupplier: TopSupplier
+  } | null>(null);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+
+    Promise.all([
+      fetchTopDishes(token),
+      fetchIngredientUsage(token),
+      fetchDailyIncome(token),
+      fetchLowStock(token),
+      fetchTopSupplier(token),
+    ]).then(([topDishes, ingredientUsage, dailyIncome, lowStock, topSupplier]) => {
+      setData({
+        topDishes,
+        ingredientUsage,
+        dailyIncome,
+        lowStock,
+        topSupplier,
+      });
+    }).catch(console.error);
+  }, []);
+
+  if (!data) return <div>Cargando...</div>;
+
+  const topDishes = data.topDishes.slice(0, 3).map(d => d.nombre).join(', ');
+  const mostUsedIns = data.ingredientUsage.mostUsed.slice(0, 3).map(i => i.nombre).join(', ');
+  const leastUsed = data.ingredientUsage.leastUsed.slice(0, 2).map(i => i.nombre).join(', ');
+  const lowStock = data.lowStock.map(i => i.nombre).join(', ');
+
+  const cards = [
+    { title: 'Top 3 platillos más vendidos', value: topDishes || 'Sin datos' },
+    { title: 'Insumos más usados', value: mostUsedIns || 'Sin datos' },
+    { title: 'Insumos menos usados', value: leastUsed || 'Sin datos' },
+    { title: 'Ingreso diario', value: `$${data.dailyIncome.income} MXN` },
+    { title: 'Productos con bajo stock', value: lowStock || 'Sin datos' },
+    { title: 'Proveedor más usado', value: data.topSupplier.topSupplier },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {cards.map(c => (

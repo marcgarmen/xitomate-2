@@ -1,26 +1,26 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import SupplierCatalogClient from "@/components/suppliers/SupplierCatalogClient";
-import ProtectedRestaurant from "@/components/ProtectedRestaurant";
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+import SupplierCatalogClient from '@/components/suppliers/SupplierCatalogClient'
+import ProtectedRestaurant from '@/components/ProtectedRestaurant'
 
-export const metadata = { title: "Catálogo del proveedor | Xitomate" };
+export const metadata = { title: 'Catálogo del proveedor | Xitomate' }
 
 export default function SupplierProductsPage({
   params,
 }: {
-  params: { supplierId: string };
+  params: { supplierId: string }
 }) {
-  const id = Number(params.supplierId);
+  const id = Number(params.supplierId)
 
   return (
     <ProtectedRestaurant>
       <main className="bg-[#FAF5F0] min-h-screen">
-        <div className="container mx-auto max-w-6xl py-10 space-y-8">
+        <div className="container mx-auto max-w-6xl py-10">
           <Link
             href="/proveedores"
-            className="inline-flex items-center text-sm text-[#E11D48] hover:underline mb-4"
+            className="mb-4 inline-flex items-center text-sm text-[#E11D48] hover:underline"
           >
-            <ArrowLeft className="w-4 h-4 mr-1" />
+            <ArrowLeft className="mr-1 h-4 w-4" />
             Volver a proveedores
           </Link>
 
@@ -28,5 +28,5 @@ export default function SupplierProductsPage({
         </div>
       </main>
     </ProtectedRestaurant>
-  );
+  )
 }

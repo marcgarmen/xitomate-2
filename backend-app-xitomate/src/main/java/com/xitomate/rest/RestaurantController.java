@@ -151,4 +151,11 @@ public class RestaurantController {
                     .build();
         }
     }
+
+    @GET
+    @Path("/products")
+    @RolesAllowed("RESTAURANT")
+    public List<SupplierProductDTO> getAvailableProducts() {
+        return restaurantService.getAvailableProducts();
+    }
 } 

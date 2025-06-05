@@ -3,6 +3,7 @@ package com.xitomate.domain.dto;
 import java.math.BigDecimal;
 
 public class SupplierProductDTO {
+    private Long id;
     private String nombre;
     private BigDecimal precio;
     private String unidad;
@@ -19,6 +20,14 @@ public class SupplierProductDTO {
     }
 
     // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getNombre() {
         return nombre;
     }

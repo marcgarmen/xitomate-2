@@ -601,4 +601,18 @@ public class RestaurantService {
         entityManager.persist(order);
         return orderDTO;
     }
+
+    public List<SupplierProductDTO> getAvailableProducts() {
+        return supplierProductRepository.listAll().stream()
+            .map(product -> {
+                SupplierProductDTO dto = new SupplierProductDTO();
+                dto.setId(product.id);
+                dto.setNombre(product.nombre);
+                dto.setPrecio(product.precio);
+                dto.setUnidad(product.unidad);
+                dto.setStock(product.stock);
+                return dto;
+            })
+            .collect(Collectors.toList());
+    }
 } 

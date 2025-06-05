@@ -3,6 +3,8 @@ package com.xitomate.service;
 import com.xitomate.domain.dto.*;
 import com.xitomate.domain.entity.*;
 import com.xitomate.domain.enums.UserRole;
+import com.xitomate.domain.enums.OrderStatus;
+import com.xitomate.domain.enums.PaymentMethod;
 import com.xitomate.repository.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -154,10 +156,10 @@ public class RestaurantService {
     }
 
     @Transactional
-    public SaleDTO createSale(SaleDTO saleDTO, String email) {
-        User restaurant = userRepository.find("email", email).firstResult();
+    public SaleDTO createSale(SaleDTO saleDTO, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) {
-            throw new RuntimeException("Restaurant not found with email: " + email);
+            throw new RuntimeException("Restaurant not found with id: " + userId);
         }
 
         Sale sale = new Sale();
@@ -199,13 +201,17 @@ public class RestaurantService {
     }
 
     @Transactional
-    public void addStock(StockDTO stockDTO, String email) {
-        User restaurant = userRepository.find("email", email).firstResult();
+    public void addStock(StockDTO stockDTO, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) {
-            throw new RuntimeException("Restaurant not found with email: " + email);
+            throw new RuntimeException("Restaurant not found with id: " + userId);
         }
 
         SupplierProduct product = supplierProductRepository.findById(stockDTO.getSupplierProductId());
+        if (product == null) {
+            throw new RuntimeException("Product not found with id: " + stockDTO.getSupplierProductId());
+        }
+
         product.stock = product.stock + stockDTO.getCantidad().intValue();
         supplierProductRepository.persist(product);
     }
@@ -547,5 +553,52 @@ public class RestaurantService {
                 return map;
             })
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public OrderRequestDTO createOrder(OrderRequestDTO orderDTO, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found");
+        }
+
+        User supplier = entityManager.find(User.class, orderDTO.getSupplierId());
+        if (supplier == null || !supplier.role.equals(UserRole.SUPPLIER)) {
+            throw new RuntimeException("Supplier not found or invalid");
+        }
+
+        OrderRequest order = new OrderRequest();
+        order.restaurant = restaurant;
+        order.supplier = supplier;
+        order.fecha = LocalDate.now();
+        order.status = OrderStatus.PENDIENTE;
+        order.paymentMethod = PaymentMethod.valueOf(orderDTO.getPaymentMethod());
+
+        List<OrderProduct> orderProducts = orderDTO.getItems().stream()
+            .map(item -> {
+                SupplierProduct product = entityManager.find(SupplierProduct.class, item.getSupplierProductId());
+                if (product == null) {
+                    throw new RuntimeException("Product not found with id: " + item.getSupplierProductId());
+                }
+                if (!product.supplier.id.equals(supplier.id)) {
+                    throw new RuntimeException("Product with id " + item.getSupplierProductId() + " does not belong to supplier " + supplier.nombre);
+                }
+
+                OrderProduct orderProduct = new OrderProduct();
+                orderProduct.order = order;
+                orderProduct.supplierProduct = product;
+                orderProduct.cantidad = item.getCantidad();
+                orderProduct.precioUnitario = product.precio;
+                return orderProduct;
+            })
+            .collect(Collectors.toList());
+
+        order.orderProducts = orderProducts;
+        order.total = orderProducts.stream()
+            .map(item -> item.precioUnitario.multiply(new BigDecimal(item.cantidad)))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        entityManager.persist(order);
+        return orderDTO;
     }
 } 

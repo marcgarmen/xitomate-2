@@ -138,4 +138,17 @@ public class RestaurantController {
                     .build();
         }
     }
+
+    @POST
+    @Path("/orders")
+    @RolesAllowed("RESTAURANT")
+    public Response createOrder(OrderRequestDTO orderDTO) {
+        try {
+            return Response.ok(restaurantService.createOrder(orderDTO, securityContext.getUserPrincipal().getName())).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+    }
 } 

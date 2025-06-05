@@ -17,31 +17,39 @@ interface Props {
   onClose: () => void;
   onSave: (data: Omit<Sale, 'id' | 'date'>, id?: number) => void;
   editSale?: Sale | null;
+  dishes?: Array<{ id: number; nombre: string; precio: number }>;
 }
 
-export function AddSaleModal({ open, onClose, onSave, editSale }: Props) {
-  const [dish, setDish] = useState('');
+export function AddSaleModal({ open, onClose, onSave, editSale, dishes = [] }: Props) {
+  const [selectedDishId, setSelectedDishId] = useState('');
   const [qty, setQty] = useState('');
-  const [price, setPrice] = useState('');
+  const [metodoPago, setMetodoPago] = useState('CARD');
 
   useEffect(() => {
     if (editSale) {
-      setDish(editSale.dish);
+      setSelectedDishId(editSale.dish);
       setQty(editSale.quantity.toString());
-      setPrice(editSale.unitPrice.toString());
     } else {
-      setDish('');
+      setSelectedDishId('');
       setQty('');
-      setPrice('');
+      setMetodoPago('CARD');
     }
   }, [editSale]);
 
   const handleSave = () => {
     const quantity = Number(qty);
-    const unitPrice = Number(price);
-    if (!dish.trim() || quantity <= 0) return;
+    if (!selectedDishId || quantity <= 0) return;
+    
+    const selectedDish = dishes.find(d => d.id.toString() === selectedDishId);
+    if (!selectedDish) return;
+
     onSave(
-      { dish: dish.trim(), quantity, unitPrice },
+      { 
+        dish: selectedDishId,
+        quantity,
+        unitPrice: selectedDish.precio,
+        metodoPago
+      },
       editSale?.id
     );
     onClose();
@@ -57,11 +65,19 @@ export function AddSaleModal({ open, onClose, onSave, editSale }: Props) {
         </DialogHeader>
 
         <div className="space-y-4">
-          <Input
-            placeholder="Nombre del platillo"
-            value={dish}
-            onChange={(e) => setDish(e.target.value)}
-          />
+          <select
+            className="w-full rounded-md p-2 bg-white border border-input text-sm shadow-sm focus-visible:ring-ring/50 outline-none"
+            value={selectedDishId}
+            onChange={(e) => setSelectedDishId(e.target.value)}
+          >
+            <option value="">Seleccionar plato</option>
+            {dishes.map((dish) => (
+              <option key={dish.id} value={dish.id}>
+                {dish.nombre} - ${dish.precio}
+              </option>
+            ))}
+          </select>
+
           <Input
             type="number"
             placeholder="Cantidad"
@@ -69,24 +85,25 @@ export function AddSaleModal({ open, onClose, onSave, editSale }: Props) {
             min={1}
             onChange={(e) => setQty(e.target.value)}
           />
-          <Input
-            type="number"
-            placeholder="Precio unitario"
-            value={price}
-            min={0}
-            step={0.01}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+
+          <select
+            className="w-full rounded-md p-2 bg-white border border-input text-sm shadow-sm focus-visible:ring-ring/50 outline-none"
+            value={metodoPago}
+            onChange={(e) => setMetodoPago(e.target.value)}
+          >
+            <option value="CARD">Tarjeta</option>
+            <option value="CASH">Efectivo</option>
+          </select>
         </div>
 
-        <DialogFooter className="pt-4">
+        <DialogFooter>
           <Button variant="SignUpRed" onClick={onClose}>
             Cancelar
           </Button>
           <Button
             variant="SignupGreen"
             onClick={handleSave}
-            disabled={!dish.trim() || Number(qty) <= 0}
+            disabled={!selectedDishId || !qty || Number(qty) <= 0}
           >
             Guardar
           </Button>

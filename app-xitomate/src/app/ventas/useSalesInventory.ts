@@ -2,24 +2,42 @@
 
 import { useState } from 'react';
 import type { Sale, InventoryItem } from '@/components/sales/types';
+import { createSale } from '@/lib/api';
 
 export function useSalesInventory() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
 
-  const addOrUpdateSale = (
+  const addOrUpdateSale = async (
     data: Omit<Sale, 'id' | 'date'>,
     id?: number
   ) => {
-    if (id) {
-      setSales((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, ...data } : s))
-      );
-    } else {
-      setSales((prev) => [
-        ...prev,
-        { id: Date.now(), date: new Date(), ...data },
-      ]);
+    try {
+      // Create the sale through the API
+      const saleData = {
+        metodoPago: 'CARD', // You might want to make this configurable
+        items: [{
+          dishId: parseInt(data.dish), // Assuming dish is the ID
+          cantidad: data.quantity
+        }]
+      };
+      
+      const response = await createSale(saleData);
+      
+      // Update local state with the response
+      if (id) {
+        setSales((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, ...data } : s))
+        );
+      } else {
+        setSales((prev) => [
+          ...prev,
+          { id: Date.now(), date: new Date(), ...data },
+        ]);
+      }
+    } catch (error) {
+      console.error('Failed to create sale:', error);
+      throw error;
     }
   };
 

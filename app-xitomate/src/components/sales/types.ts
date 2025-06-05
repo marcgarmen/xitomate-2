@@ -4,6 +4,7 @@ export interface Sale {
   quantity: number;
   unitPrice: number;
   date: Date;
+  metodoPago: string;
 }
 
 export interface InventoryItem {

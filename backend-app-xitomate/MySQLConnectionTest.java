@@ -4,9 +4,9 @@ import java.sql.SQLException;
 
 public class MySQLConnectionTest {
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3306/xitomate_db";
+        String url = "jdbc:mysql://localhost:3306/xitomate";
         String user = "root";
-        String password = "imendoza09";
+        String password = "Xm30425";
 
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             if (connection != null) {

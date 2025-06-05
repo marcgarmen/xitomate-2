@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class DishDTO {
+    private Long id;
     private String nombre;
     private BigDecimal precio;
     private String categoria;
@@ -13,6 +14,14 @@ public class DishDTO {
     public DishDTO() {}
 
     // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getNombre() {
         return nombre;
     }

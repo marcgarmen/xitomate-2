@@ -147,6 +147,7 @@ public class RestaurantService {
         return dishes.stream()
             .map(dish -> {
                 DishDTO dto = new DishDTO();
+                dto.setId(dish.id);
                 dto.setNombre(dish.nombre);
                 dto.setPrecio(dish.precio);
                 dto.setCategoria(dish.categoria);

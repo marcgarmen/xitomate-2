@@ -68,6 +68,55 @@ public class RestaurantController {
     }
 
     @GET
+    @Path("/sales")
+    @RolesAllowed("RESTAURANT")
+    public List<SaleDTO> getSales() {
+        return restaurantService.getSales(securityContext.getUserPrincipal().getName());
+    }
+
+    @GET
+    @Path("/sales/{id}")
+    @RolesAllowed("RESTAURANT")
+    public Response getSale(@PathParam("id") Long id) {
+        try {
+            SaleDTO sale = restaurantService.getSale(id, securityContext.getUserPrincipal().getName());
+            return Response.ok(sale).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("/sales/{id}")
+    @RolesAllowed("RESTAURANT")
+    public Response updateSale(@PathParam("id") Long id, SaleDTO saleDTO) {
+        try {
+            SaleDTO updatedSale = restaurantService.updateSale(id, saleDTO, securityContext.getUserPrincipal().getName());
+            return Response.ok(updatedSale).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+    }
+
+    @DELETE
+    @Path("/sales/{id}")
+    @RolesAllowed("RESTAURANT")
+    public Response deleteSale(@PathParam("id") Long id) {
+        try {
+            restaurantService.deleteSale(id, securityContext.getUserPrincipal().getName());
+            return Response.ok().build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+    }
+
+    @GET
     @Path("/suppliers")
     @RolesAllowed("RESTAURANT")
     public List<SupplierDTO> getSuppliers() {

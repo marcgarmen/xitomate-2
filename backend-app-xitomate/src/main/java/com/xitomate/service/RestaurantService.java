@@ -186,7 +186,174 @@ public class RestaurantService {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         saleRepository.persist(sale);
+        
+        // Set the ID in the DTO before returning
+        saleDTO.setId(sale.id);
+        saleDTO.setFecha(sale.fecha);
+        saleDTO.setTotal(sale.total);
         return saleDTO;
+    }
+
+    @Transactional
+    public List<SaleDTO> getSales(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with id: " + userId);
+        }
+
+        List<Sale> sales = entityManager.createQuery(
+            "SELECT DISTINCT s FROM Sale s " +
+            "LEFT JOIN FETCH s.items i " +
+            "LEFT JOIN FETCH i.dish " +
+            "WHERE s.restaurant = :restaurant " +
+            "ORDER BY s.fecha DESC", Sale.class)
+            .setParameter("restaurant", restaurant)
+            .getResultList();
+
+        return sales.stream()
+            .map(sale -> {
+                SaleDTO dto = new SaleDTO();
+                dto.setId(sale.id);
+                dto.setMetodoPago(sale.metodoPago);
+                dto.setFecha(sale.fecha);
+                dto.setTotal(sale.total);
+                dto.setItems(sale.items.stream()
+                    .map(item -> {
+                        SaleItemDTO itemDTO = new SaleItemDTO();
+                        itemDTO.setDishId(item.dish.id);
+                        itemDTO.setCantidad(item.cantidad);
+                        return itemDTO;
+                    })
+                    .collect(Collectors.toList()));
+                return dto;
+            })
+            .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public SaleDTO getSale(Long saleId, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with id: " + userId);
+        }
+
+        Sale sale = entityManager.createQuery(
+            "SELECT DISTINCT s FROM Sale s " +
+            "LEFT JOIN FETCH s.items i " +
+            "LEFT JOIN FETCH i.dish " +
+            "WHERE s.id = :saleId AND s.restaurant = :restaurant", Sale.class)
+            .setParameter("saleId", saleId)
+            .setParameter("restaurant", restaurant)
+            .getResultList()
+            .stream()
+            .findFirst()
+            .orElse(null);
+
+        if (sale == null) {
+            throw new RuntimeException("Sale not found or unauthorized");
+        }
+
+        SaleDTO dto = new SaleDTO();
+        dto.setId(sale.id);
+        dto.setMetodoPago(sale.metodoPago);
+        dto.setFecha(sale.fecha);
+        dto.setTotal(sale.total);
+        dto.setItems(sale.items.stream()
+            .map(item -> {
+                SaleItemDTO itemDTO = new SaleItemDTO();
+                itemDTO.setDishId(item.dish.id);
+                itemDTO.setCantidad(item.cantidad);
+                return itemDTO;
+            })
+            .collect(Collectors.toList()));
+        return dto;
+    }
+
+    @Transactional
+    public SaleDTO updateSale(Long saleId, SaleDTO saleDTO, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with id: " + userId);
+        }
+
+        Sale sale = entityManager.createQuery(
+            "SELECT DISTINCT s FROM Sale s " +
+            "LEFT JOIN FETCH s.items i " +
+            "LEFT JOIN FETCH i.dish " +
+            "WHERE s.id = :saleId AND s.restaurant = :restaurant", Sale.class)
+            .setParameter("saleId", saleId)
+            .setParameter("restaurant", restaurant)
+            .getResultList()
+            .stream()
+            .findFirst()
+            .orElse(null);
+
+        if (sale == null) {
+            throw new RuntimeException("Sale not found or unauthorized");
+        }
+
+        // Update payment method
+        sale.metodoPago = saleDTO.getMetodoPago();
+
+        // Clear existing items
+        sale.items.clear();
+
+        // Add new items
+        BigDecimal total = BigDecimal.ZERO;
+        for (SaleItemDTO itemDTO : saleDTO.getItems()) {
+            Dish dish = entityManager.find(Dish.class, itemDTO.getDishId());
+            if (dish == null || !dish.restaurant.id.equals(restaurant.id)) {
+                throw new RuntimeException("Dish not found or unauthorized");
+            }
+
+            SaleItem item = new SaleItem();
+            item.sale = sale;
+            item.dish = dish;
+            item.cantidad = itemDTO.getCantidad();
+            item.precioUnitario = dish.precio;
+            item.subtotal = dish.precio.multiply(new BigDecimal(itemDTO.getCantidad()));
+            total = total.add(item.subtotal);
+            sale.items.add(item);
+        }
+
+        // Update total
+        sale.total = total;
+
+        // Merge the updated sale
+        sale = entityManager.merge(sale);
+        entityManager.flush();
+
+        // Create response DTO
+        SaleDTO responseDTO = new SaleDTO();
+        responseDTO.setId(sale.id);
+        responseDTO.setMetodoPago(sale.metodoPago);
+        responseDTO.setFecha(sale.fecha);
+        responseDTO.setTotal(sale.total);
+        responseDTO.setItems(sale.items.stream()
+            .map(item -> {
+                SaleItemDTO itemDTO = new SaleItemDTO();
+                itemDTO.setDishId(item.dish.id);
+                itemDTO.setCantidad(item.cantidad);
+                return itemDTO;
+            })
+            .collect(Collectors.toList()));
+
+        return responseDTO;
+    }
+
+    @Transactional
+    public void deleteSale(Long saleId, String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) {
+            throw new RuntimeException("Restaurant not found with id: " + userId);
+        }
+
+        Sale sale = saleRepository.findById(saleId);
+        if (sale == null || !sale.restaurant.id.equals(restaurant.id)) {
+            throw new RuntimeException("Sale not found or unauthorized");
+        }
+
+        saleRepository.delete(sale);
     }
 
     public List<SupplierDTO> getSuppliers() {

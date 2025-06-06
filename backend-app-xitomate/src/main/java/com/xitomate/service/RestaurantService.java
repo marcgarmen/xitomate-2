@@ -140,7 +140,7 @@ public class RestaurantService {
         }
 
         List<Dish> dishes = entityManager.createQuery(
-            "SELECT d FROM Dish d WHERE d.restaurant = :restaurant", Dish.class)
+            "SELECT d FROM Dish d LEFT JOIN FETCH d.ingredientes WHERE d.restaurant = :restaurant", Dish.class)
             .setParameter("restaurant", restaurant)
             .getResultList();
 
@@ -151,6 +151,23 @@ public class RestaurantService {
                 dto.setNombre(dish.nombre);
                 dto.setPrecio(dish.precio);
                 dto.setCategoria(dish.categoria);
+                if (dish.ingredientes != null) {
+                    dto.setIngredientes(
+                        dish.ingredientes.stream().map(ing -> {
+                            DishIngredientDTO ingDTO = new DishIngredientDTO();
+                            ingDTO.setId(ing.id);
+                            if (ing.supplierProduct != null) {
+                                ingDTO.setSupplierProductId(ing.supplierProduct.id);
+                            }
+                            ingDTO.setCantidad(ing.cantidad);
+                            ingDTO.setUnidad(ing.unidad);
+                            ingDTO.setNombreLibre(ing.nombreLibre);
+                            return ingDTO;
+                        }).collect(Collectors.toList())
+                    );
+                } else {
+                    dto.setIngredientes(List.of());
+                }
                 return dto;
             })
             .collect(Collectors.toList());

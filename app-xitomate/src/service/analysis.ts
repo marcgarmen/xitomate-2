@@ -16,7 +16,7 @@ export type IngredientUsage = {
 
 export type DailyIncome = {
   date: string
-  income: number
+  income: number | null
 }
 
 export type LowStock = {
@@ -38,6 +38,10 @@ export type InventoryForecast = {
     unit: string
   }>
 }
+
+export type DailyIncomeResponse = {
+  dailyIncomes: DailyIncome[];
+};
 
 //--------------------------------------------------
 // 2.  API Calls
@@ -64,13 +68,14 @@ export async function fetchIngredientUsage(token: string): Promise<{
   return res.json()
 }
 
-export async function fetchDailyIncome(token: string): Promise<DailyIncome> {
+export async function fetchDailyIncome(token: string): Promise<DailyIncome[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/analysis/daily-income`, {
     headers: { Authorization: `Bearer ${token}` },
     cache: 'no-store',
   })
   if (!res.ok) throw new Error('No se pudo obtener ingreso diario')
-  return res.json()
+  const data = await res.json()
+  return data.dailyIncomes || []
 }
 
 export async function fetchLowStock(token: string): Promise<LowStock[]> {

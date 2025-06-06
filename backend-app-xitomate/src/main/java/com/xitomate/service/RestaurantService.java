@@ -140,7 +140,7 @@ public class RestaurantService {
         }
 
         List<Dish> dishes = entityManager.createQuery(
-            "SELECT d FROM Dish d WHERE d.restaurant = :restaurant", Dish.class)
+            "SELECT d FROM Dish d LEFT JOIN FETCH d.ingredientes WHERE d.restaurant = :restaurant", Dish.class)
             .setParameter("restaurant", restaurant)
             .getResultList();
 
@@ -151,6 +151,23 @@ public class RestaurantService {
                 dto.setNombre(dish.nombre);
                 dto.setPrecio(dish.precio);
                 dto.setCategoria(dish.categoria);
+                if (dish.ingredientes != null) {
+                    dto.setIngredientes(
+                        dish.ingredientes.stream().map(ing -> {
+                            DishIngredientDTO ingDTO = new DishIngredientDTO();
+                            ingDTO.setId(ing.id);
+                            if (ing.supplierProduct != null) {
+                                ingDTO.setSupplierProductId(ing.supplierProduct.id);
+                            }
+                            ingDTO.setCantidad(ing.cantidad);
+                            ingDTO.setUnidad(ing.unidad);
+                            ingDTO.setNombreLibre(ing.nombreLibre);
+                            return ingDTO;
+                        }).collect(Collectors.toList())
+                    );
+                } else {
+                    dto.setIngredientes(List.of());
+                }
                 return dto;
             })
             .collect(Collectors.toList());
@@ -632,14 +649,27 @@ public class RestaurantService {
         User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) throw new RuntimeException("Restaurant not found");
 
-        BigDecimal total = saleRepository.find("restaurant", restaurant).list().stream()
-            .filter(sale -> sale.fecha.toLocalDate().equals(LocalDate.now()))
-            .map(sale -> sale.total)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Get sales for the last 7 days
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusDays(6);
+
+        List<Map<String, Object>> dailyIncomes = new ArrayList<>();
+        
+        for (int i = 0; i <= 6; i++) {
+            LocalDate date = startDate.plusDays(i);
+            BigDecimal total = saleRepository.find("restaurant", restaurant).list().stream()
+                .filter(sale -> sale.fecha.toLocalDate().equals(date))
+                .map(sale -> sale.total)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            Map<String, Object> dailyIncome = new HashMap<>();
+            dailyIncome.put("date", date);
+            dailyIncome.put("income", total);
+            dailyIncomes.add(dailyIncome);
+        }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("date", LocalDate.now());
-        result.put("income", total);
+        result.put("dailyIncomes", dailyIncomes);
         return result;
     }
 

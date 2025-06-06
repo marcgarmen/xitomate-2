@@ -96,4 +96,12 @@ public class RestaurantAnalysisController {
         }
         return Response.ok(result).build();
     }
+
+    @GET
+    @Path("/inventory")
+    @RolesAllowed("RESTAURANT")
+    public List<Map<String, Object>> getInventory() {
+        String userId = securityContext.getUserPrincipal().getName();
+        return restaurantService.getCurrentInventory(userId);
+    }
 }

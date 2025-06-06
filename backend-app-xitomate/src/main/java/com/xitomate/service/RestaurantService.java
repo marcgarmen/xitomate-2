@@ -725,9 +725,12 @@ public class RestaurantService {
             List<Double> quantities = dates.stream()
                 .map(d -> entry.getValue().getOrDefault(LocalDate.parse(d), BigDecimal.ZERO).doubleValue())
                 .collect(Collectors.toList());
-            obj.put("dates", dates);
-            obj.put("quantities", quantities);
-            result.add(obj);
+            // FILTRO: solo ingredientes con al menos 3 días y cantidades variables
+            if (quantities.size() >= 3 && quantities.stream().distinct().count() > 1) {
+                obj.put("dates", dates);
+                obj.put("quantities", quantities);
+                result.add(obj);
+            }
         }
         return result;
     }

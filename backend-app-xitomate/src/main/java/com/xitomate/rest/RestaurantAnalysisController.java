@@ -70,11 +70,30 @@ public class RestaurantAnalysisController {
     public Response getInventoryForecast() {
         String userId = securityContext.getUserPrincipal().getName();
         List<?> history = restaurantService.getIngredientUsageHistoryForForecast(userId);
-        String forecast = forecastClient.getForecast(history);
+        String forecastJson = forecastClient.getForecast(history);
         List<?> inventory = restaurantService.getCurrentInventory(userId);
+
+        Object forecast;
+        String errorMsg = null;
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            if (forecastJson != null && forecastJson.trim().startsWith("[")) {
+                forecast = mapper.readValue(forecastJson, List.class);
+            } else {
+                forecast = List.of();
+                errorMsg = forecastJson;
+            }
+        } catch (Exception e) {
+            forecast = List.of();
+            errorMsg = "Error parsing forecast: " + e.getMessage();
+        }
+
         Map<String, Object> result = new HashMap<>();
         result.put("inventory", inventory);
         result.put("forecast", forecast);
+        if (errorMsg != null) {
+            result.put("error", errorMsg);
+        }
         return Response.ok(result).build();
     }
 }

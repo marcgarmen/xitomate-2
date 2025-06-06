@@ -632,14 +632,27 @@ public class RestaurantService {
         User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) throw new RuntimeException("Restaurant not found");
 
-        BigDecimal total = saleRepository.find("restaurant", restaurant).list().stream()
-            .filter(sale -> sale.fecha.toLocalDate().equals(LocalDate.now()))
-            .map(sale -> sale.total)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Get sales for the last 7 days
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusDays(6);
+
+        List<Map<String, Object>> dailyIncomes = new ArrayList<>();
+        
+        for (int i = 0; i <= 6; i++) {
+            LocalDate date = startDate.plusDays(i);
+            BigDecimal total = saleRepository.find("restaurant", restaurant).list().stream()
+                .filter(sale -> sale.fecha.toLocalDate().equals(date))
+                .map(sale -> sale.total)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            Map<String, Object> dailyIncome = new HashMap<>();
+            dailyIncome.put("date", date);
+            dailyIncome.put("income", total);
+            dailyIncomes.add(dailyIncome);
+        }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("date", LocalDate.now());
-        result.put("income", total);
+        result.put("dailyIncomes", dailyIncomes);
         return result;
     }
 

@@ -1,3 +1,4 @@
+// src/components/analysis/InventoryUsageTable.tsx
 'use client';
 import { useEffect, useState } from 'react';
 import Etiqueta from '@/components/Test-Rosa/Etiqueta';
@@ -18,25 +19,44 @@ export default function InventoryUsageTable() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div>Cargando inventario...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
-  if (!data || !data.inventory.length) return <div>No hay inventario registrado.</div>;
+  if (loading) {
+    return <div>Cargando inventario...</div>;
+  }
 
-  // El forecast puede venir como string JSON, parsear si es necesario
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
+
+  if (!data || !Array.isArray(data.inventory) || data.inventory.length === 0) {
+    return <div>No hay inventario registrado.</div>;
+  }
+
+  // Asegurarnos de que forecastArr sea siempre un arreglo (aunque venga como string JSON)
   let forecastArr: { ingredient: string; forecast: number }[] = [];
   if (typeof data.forecast === 'string') {
     try {
-      forecastArr = JSON.parse(data.forecast);
+      const parsed = JSON.parse(data.forecast);
+      if (Array.isArray(parsed)) {
+        forecastArr = parsed;
+      } else {
+        forecastArr = [];
+      }
     } catch {
       forecastArr = [];
     }
   } else if (Array.isArray(data.forecast)) {
     forecastArr = data.forecast;
+  } else {
+    forecastArr = [];
   }
 
   const rows = data.inventory.map((inv) => {
-    const forecastItem = forecastArr.find((f) => f.ingredient === inv.ingredient);
-    const forecastQty = forecastItem ? forecastItem.forecast : 0;
+    // Solo llamar a `.find` si forecastArr es un arreglo
+    let forecastQty = 0;
+    if (Array.isArray(forecastArr)) {
+      const forecastItem = forecastArr.find((f) => f.ingredient === inv.ingredient);
+      forecastQty = forecastItem ? forecastItem.forecast : 0;
+    }
     const diff = inv.stock - forecastQty;
     const state = diff < 0 ? 'Faltante' : 'Sobrante';
     const color = diff < 0 ? 'error' as const : 'success' as const;
@@ -66,11 +86,17 @@ export default function InventoryUsageTable() {
         </thead>
         <tbody>
           {rows.map((it, idx) => (
-            <tr key={it.ingredient + '-' + it.unit + '-' + idx} className={idx % 2 ? 'bg-[#EDF6E7]' : 'bg-[#F5FAF2]'}>
+            <tr
+              key={it.ingredient + '-' + it.unit + '-' + idx}
+              className={idx % 2 ? 'bg-[#EDF6E7]' : 'bg-[#F5FAF2]'}
+            >
               <td className="p-3">{it.ingredient}</td>
               <td className="p-3">{it.stock} {it.unit}</td>
               <td className="p-3">{it.forecast} {it.unit}</td>
-              <td className="p-3">{it.diff > 0 ? '+' : ''}{it.diff} {it.unit}</td>
+              <td className="p-3">
+                {it.diff > 0 ? '+' : ''}
+                {it.diff} {it.unit}
+              </td>
               <td className="p-3">
                 <Etiqueta text={it.state} color={it.color} />
               </td>

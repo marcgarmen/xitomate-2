@@ -44,7 +44,7 @@ export default function SupplierCard({ supplier }: Props) {
           </p>
         </div>
 
-        <Link href={`/proveedores/${supplier.id}`}>
+        <Link href={`/marketplace/${supplier.id}`}>
           <Button
             variant="outline"
             className="cursor-pointer border-gray-300 hover:bg-gray-100"

@@ -1,6 +1,7 @@
 export interface Sale {
   id: number;
-  dish: string;
+  dishId: number;
+  dishName: string;
   quantity: number;
   unitPrice: number;
   date: Date;

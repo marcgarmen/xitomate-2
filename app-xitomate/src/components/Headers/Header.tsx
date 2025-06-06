@@ -27,7 +27,7 @@ const menuItems = {
     { label: "Inicio", href: "/" },
     { label: "Platillos", href: "/platillos" },
     { label: "Ventas", href: "/ventas" },
-    { label: "Proveedores", href: "/proveedores" },
+    { label: "Marketplace", href: "/marketplace" },
     { label: "Análisis", href: "/analisis" },
     { label: "ExploraIA", href: "/exploraia" },
     { label: "Mi cuenta", href: "/login", isButton: true },

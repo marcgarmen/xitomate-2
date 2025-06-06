@@ -30,10 +30,10 @@ export async function loginUser(email: string, password: string) {
 }
 
 //--------------------------------------------------
-// 2.  Helpers
+// 2.  Helpers (token en localStorage)
 //--------------------------------------------------
 
-const TOKEN_KEY = 'xitomate_token'; // clave única
+const TOKEN_KEY = 'xitomate_token';
 
 export function getToken() {
   if (typeof window === 'undefined') return '';
@@ -58,7 +58,7 @@ export function logoutUser() {
 }
 
 //--------------------------------------------------
-// 3.  Proveedores
+// 3.  Proveedores (no cambia)
 //--------------------------------------------------
 
 export type SupplierApi = {
@@ -76,7 +76,7 @@ export async function fetchSuppliers(): Promise<SupplierApi[]> {
 }
 
 //--------------------------------------------------
-// 4.  Catálogo de un proveedor
+// 4.  Catálogo de un proveedor (no cambia)
 //--------------------------------------------------
 
 export type ProductApi = {
@@ -103,18 +103,17 @@ export async function fetchSupplierCatalog(
 }
 
 //--------------------------------------------------
-// 5.  Sugerencias de ingredientes / productos
+// 5.  Sugerencias de ingredientes / productos (no cambia)
 //--------------------------------------------------
 
 export type ProductSuggestion = {
-  id: number;          // supplierProductId
+  id: number;
   nombre: string;
   proveedor: string;
   precio: number;
   unidad: string;
 };
 
-// GET /supplierProducts/search?query=tomate
 export async function searchSupplierProducts(
   query: string,
   token: string
@@ -144,4 +143,101 @@ export async function searchSupplierProducts(
     precio: p.precio,
     unidad: p.unidad,
   }));
+}
+
+//--------------------------------------------------
+// 6.  Ventas
+//--------------------------------------------------
+
+// Payload que el backend espera para crear una nueva venta
+export interface CreateSaleRequest {
+  metodoPago: string; // 'CASH' | 'COD' | 'CARD'
+  items: {
+    dishId: number;
+    cantidad: number;
+  }[];
+}
+
+// POST /restaurant/sales
+export async function createSale(data: CreateSaleRequest): Promise<any> {
+  const token = getToken();
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('createSale →', res.status, text);
+    throw new Error(text);
+  }
+  return res.json(); // → { id, metodoPago, items, fecha, total, … }
+}
+
+// GET /restaurant/sales → devuelve todas las ventas de ese restaurante
+export async function fetchSales(): Promise<
+  Array<{
+    id: number;
+    metodoPago: string;
+    items: { dishId: number; cantidad: number }[];
+    fecha: string;
+    total: number;
+  }>
+> {
+  const token = getToken();
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('fetchSales →', res.status, err);
+    throw new Error(err);
+  }
+  return res.json();
+}
+
+// DELETE /restaurant/sales/{id}
+export async function deleteSaleRequest(id: number): Promise<void> {
+  const token = getToken();
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales/${id}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('deleteSaleRequest →', res.status, err);
+    throw new Error(err);
+  }
+}
+
+// PUT /restaurant/sales/{id}
+export async function updateSaleRequest(
+  id: number,
+  data: CreateSaleRequest
+): Promise<any> {
+  const token = getToken();
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales/${id}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  );
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('updateSaleRequest →', res.status, text);
+    throw new Error(text);
+  }
+  return res.json();
 }

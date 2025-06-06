@@ -1,9 +1,9 @@
 import SuppliersClient from "@/components/suppliers/SuppliersClient";
 import ProtectedRestaurant from "@/components/ProtectedRestaurant";
 
-export const metadata = { title: "Proveedores | Xitomate" };
+export const metadata = { title: "Marketplace | Xitomate" };
 
-export default function SuppliersPage() {
+export default function MarketplacePage() {
   return (
     <ProtectedRestaurant>
       <main className="bg-[#F9FBF6] min-h-screen">

@@ -11,16 +11,16 @@ interface Props {
 }
 
 export function InventoryTable({ items, onEdit, onDelete }: Props) {
-  if (!items.length)
+  if (!items.length) {
     return (
       <p className="text-center text-lg text-gray-500 py-12">
         Aún no has registrado inventario.
       </p>
     );
+  }
 
   return (
-    <div className="mt-12">
-      <h2 className="text-2xl font-bold mb-4">Inventario</h2>
+    <div className="mt-2">
       <table className="w-full rounded-lg overflow-hidden text-left">
         <thead className="bg-[#9BB968] text-black">
           <tr>

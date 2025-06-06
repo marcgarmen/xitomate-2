@@ -129,21 +129,15 @@ public class RestaurantService {
     }
 
     public List<DishDTO> getDishes(String token) {
-        // Buscar el restaurante por email
-        User restaurant = entityManager.createQuery(
-            "SELECT u FROM User u WHERE u.email = :email", User.class)
-            .setParameter("email", "restaurant@test.com")
-            .getSingleResult();
-
+        // Buscar el restaurante por id
+        User restaurant = entityManager.find(User.class, Long.parseLong(token));
         if (restaurant == null) {
             throw new RuntimeException("Restaurant not found");
         }
-
         List<Dish> dishes = entityManager.createQuery(
             "SELECT d FROM Dish d LEFT JOIN FETCH d.ingredientes WHERE d.restaurant = :restaurant", Dish.class)
             .setParameter("restaurant", restaurant)
             .getResultList();
-
         return dishes.stream()
             .map(dish -> {
                 DishDTO dto = new DishDTO();

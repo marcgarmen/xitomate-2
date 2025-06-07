@@ -16,7 +16,7 @@ const SelectionCardRestaurant = ({ selected, onClick }: Props) => {
     >
       <div className="min-w-[73px] min-h-[80px] relative">
         <Image
-          src="/icon-restaurante1.svg"
+          src="/restaurante-icon.svg"
           alt="Icono restaurante"
           width={73}
           height={80}

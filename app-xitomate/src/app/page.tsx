@@ -20,7 +20,7 @@ export default function Home() {
 
           <button
             onClick={() => router.push('/registro')}
-            className="bg-[#E11D48] hover:bg-[#c9103b] text-white px-6 py-3 rounded-full font-bold shadow-md transition"
+            className="cursor-pointer bg-[#E11D48] hover:bg-[#c9103b] text-white px-6 py-3 rounded-full font-bold shadow-md transition"
           >
             Regístrate gratis
           </button>

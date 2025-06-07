@@ -19,6 +19,8 @@ export function InventoryTable({ items, onEdit, onDelete }: Props) {
     );
   }
 
+  const sortedItems = [...items].sort((a, b) => b.id - a.id);
+
   return (
     <div className="mt-2">
       <table className="w-full rounded-lg overflow-hidden text-left">
@@ -32,7 +34,7 @@ export function InventoryTable({ items, onEdit, onDelete }: Props) {
           </tr>
         </thead>
         <tbody>
-          {items.map((i, idx) => (
+          {sortedItems.map((i, idx) => (
             <tr
               key={i.id}
               className={idx % 2 ? 'bg-[#EDF6E7]' : 'bg-[#F5FAF2]'}
@@ -40,7 +42,11 @@ export function InventoryTable({ items, onEdit, onDelete }: Props) {
               <td className="p-3">{i.name}</td>
               <td className="p-3">{i.stock}</td>
               <td className="p-3">{i.unit}</td>
-              <td className="p-3">{format(i.updatedAt, 'd/M/yyyy')}</td>
+              <td className="p-3">
+                {isNaN(i.updatedAt.getTime())
+                  ? '-'
+                  : format(i.updatedAt, 'd/M/yyyy')}
+              </td>
               <td className="p-3 flex gap-2">
                 <button onClick={() => onEdit(i)}>
                   <Pencil className="size-4" />

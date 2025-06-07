@@ -15,7 +15,7 @@ const SelectionCardGroup = () => {
         } w-[433px] h-[108px]`}
       >
         <div className="min-w-[73px] min-h-[80px] relative">
-          <Image src="/icon-restaurante1.svg" alt="Icono restaurante" width={73} height={80} />
+          <Image src="/restaurante-icon.svg" alt="Icono restaurante" width={73} height={80} />
         </div>
         <div>
           <h3 className="font-bold text-black">Restaurante</h3>
@@ -31,7 +31,7 @@ const SelectionCardGroup = () => {
         } w-[433px] h-[108px]`}
       >
         <div className="min-w-[73px] min-h-[80px] relative">
-          <Image src="/icon-proveedor1.svg" alt="Icono proveedor" width={73} height={80} />
+          <Image src="/proveedor-icon.svg" alt="Icono proveedor" width={73} height={80} />
         </div>
         <div>
           <h3 className="font-bold text-black">Proveedor local</h3>

@@ -9,7 +9,10 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import jakarta.annotation.security.RolesAllowed;
 
 @Path("/suppliers/{supplierId}/products")
 @Produces(MediaType.APPLICATION_JSON)
@@ -127,5 +130,24 @@ public class SupplierProductManagementResource {
                     .entity(Map.of("error", e.getMessage()))
                     .build();
         }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"RESTAURANT", "ADMIN"})
+    public List<SupplierProductDTO> getProducts(@PathParam("supplierId") Long supplierId) {
+        List<SupplierProduct> products = entityManager.createQuery(
+            "SELECT p FROM SupplierProduct p WHERE p.supplier.id = :supplierId", SupplierProduct.class)
+            .setParameter("supplierId", supplierId)
+            .getResultList();
+        return products.stream().map(product -> {
+            SupplierProductDTO dto = new SupplierProductDTO();
+            dto.setId(product.id);
+            dto.setNombre(product.nombre);
+            dto.setPrecio(product.precio);
+            dto.setUnidad(product.unidad);
+            dto.setStock(product.stock);
+            return dto;
+        }).collect(Collectors.toList());
     }
 } 

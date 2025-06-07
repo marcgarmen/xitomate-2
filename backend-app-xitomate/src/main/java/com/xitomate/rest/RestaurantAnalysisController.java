@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.*;
 import java.time.LocalDate;
 import java.util.*;
 import jakarta.transaction.Transactional;
+import com.xitomate.domain.entity.RestaurantInventory;
 
 @Path("/restaurant/analysis")
 @Produces(MediaType.APPLICATION_JSON)
@@ -120,6 +121,36 @@ public class RestaurantAnalysisController {
             dto.getUnidad(),
             dto.getPrecio()
         );
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/inventory/{id}")
+    @RolesAllowed("RESTAURANT")
+    @Transactional
+    public Response updateInventory(@PathParam("id") Long id, InventoryDTO dto) {
+        String userId = securityContext.getUserPrincipal().getName();
+        RestaurantInventory inventory = restaurantService.getInventoryById(id, Long.parseLong(userId));
+        if (inventory == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Ingrediente no encontrado")).build();
+        }
+        if (dto.getStock() != null) inventory.stock = dto.getStock();
+        if (dto.getUnidad() != null) inventory.unidad = dto.getUnidad();
+        if (dto.getPrecio() != null) inventory.precio = dto.getPrecio();
+        restaurantService.saveInventory(inventory);
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/inventory/{id}")
+    @RolesAllowed("RESTAURANT")
+    @Transactional
+    public Response deleteInventory(@PathParam("id") Long id) {
+        String userId = securityContext.getUserPrincipal().getName();
+        boolean deleted = restaurantService.deleteInventoryById(id, Long.parseLong(userId));
+        if (!deleted) {
+            return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Ingrediente no encontrado")).build();
+        }
         return Response.ok().build();
     }
 }

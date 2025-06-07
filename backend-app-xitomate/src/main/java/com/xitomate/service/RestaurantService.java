@@ -147,6 +147,41 @@ public class RestaurantService {
             entityManager.persist(dish);
             entityManager.flush();
 
+            // --- NUEVO: Agregar ingredientes al inventario si no existen ---
+            for (DishIngredient di : dish.ingredientes) {
+                RestaurantInventory inv = null;
+                if (di.supplierProduct != null) {
+                    inv = entityManager.createQuery(
+                        "SELECT ri FROM RestaurantInventory ri WHERE ri.restaurant.id = :restaurantId AND ri.supplierProduct.id = :spId", RestaurantInventory.class)
+                        .setParameter("restaurantId", restaurant.id)
+                        .setParameter("spId", di.supplierProduct.id)
+                        .getResultStream().findFirst().orElse(null);
+                    if (inv == null) {
+                        inv = new RestaurantInventory();
+                        inv.restaurant = restaurant;
+                        inv.supplierProduct = di.supplierProduct;
+                        inv.unidad = di.unidad;
+                        inv.stock = 0;
+                        entityManager.persist(inv);
+                    }
+                } else if (di.nombreLibre != null) {
+                    inv = entityManager.createQuery(
+                        "SELECT ri FROM RestaurantInventory ri WHERE ri.restaurant.id = :restaurantId AND ri.nombreLibre = :nombreLibre", RestaurantInventory.class)
+                        .setParameter("restaurantId", restaurant.id)
+                        .setParameter("nombreLibre", di.nombreLibre)
+                        .getResultStream().findFirst().orElse(null);
+                    if (inv == null) {
+                        inv = new RestaurantInventory();
+                        inv.restaurant = restaurant;
+                        inv.nombreLibre = di.nombreLibre;
+                        inv.unidad = di.unidad;
+                        inv.stock = 0;
+                        entityManager.persist(inv);
+                    }
+                }
+            }
+            // --- FIN NUEVO ---
+
             return dishDTO;
         } catch (Exception e) {
             throw new RuntimeException("Error al crear el plato: " + e.getMessage());
@@ -816,6 +851,7 @@ public class RestaurantService {
         return inventory.stream()
             .map(ri -> {
                 Map<String, Object> map = new HashMap<>();
+                map.put("id", ri.id);
                 map.put("ingredient", ri.supplierProduct != null ? ri.supplierProduct.nombre : ri.nombreLibre);
                 map.put("stock", ri.stock);
                 map.put("unit", ri.unidad);
@@ -891,5 +927,29 @@ public class RestaurantService {
     private String generateToken(User user) {
         // En producción, implementar generación de JWT real
         return "JWT_TOKEN_" + user.id;
+    }
+
+    // --- Métodos para CRUD de inventario ---
+    public RestaurantInventory getInventoryById(Long inventoryId, long restaurantId) {
+        RestaurantInventory inv = entityManager.find(RestaurantInventory.class, inventoryId);
+        if (inv == null || inv.restaurant == null || !inv.restaurant.id.equals(restaurantId)) {
+            return null;
+        }
+        return inv;
+    }
+
+    @Transactional
+    public void saveInventory(RestaurantInventory inventory) {
+        entityManager.merge(inventory);
+    }
+
+    @Transactional
+    public boolean deleteInventoryById(Long inventoryId, long restaurantId) {
+        RestaurantInventory inv = entityManager.find(RestaurantInventory.class, inventoryId);
+        if (inv == null || inv.restaurant == null || !inv.restaurant.id.equals(restaurantId)) {
+            return false;
+        }
+        entityManager.remove(inv);
+        return true;
     }
 } 

@@ -13,6 +13,8 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.core.Context;
 
 @Path("/supplier/orders")
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,7 +29,12 @@ public class SupplierOrderResource {
 
     @GET
     @Path("/all")
-    public Response getAllOrders(@QueryParam("supplierId") Long supplierId) {
+    @RolesAllowed("SUPPLIER")
+    public Response getAllOrders(@QueryParam("supplierId") Long supplierId, @Context jakarta.ws.rs.core.SecurityContext securityContext) {
+        Long userId = Long.parseLong(securityContext.getUserPrincipal().getName());
+        if (!userId.equals(supplierId)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(java.util.Map.of("error", "No autorizado para ver las órdenes de otro proveedor")).build();
+        }
         try {
             List<OrderRequest> orders = useCase.getAllOrders(supplierId);
             List<OrderRequestViewDTO> dtos = orders.stream().map(order -> new OrderRequestViewDTO(
@@ -40,11 +47,11 @@ public class SupplierOrderResource {
                 order.fecha,
                 order.total,
                 order.paymentMethod != null ? order.paymentMethod.name() : null
-            )).collect(Collectors.toList());
+            )).collect(java.util.stream.Collectors.toList());
             return Response.ok(dtos).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", e.getMessage()))
+                    .entity(java.util.Map.of("error", e.getMessage()))
                     .build();
         }
     }

@@ -71,10 +71,14 @@ public class FirebaseAuthFilter implements ContainerRequestFilter {
                 throw new RuntimeException("User not found");
             }
 
-            // Permitir acceso a SUPPLIER y RESTAURANT para consulta de catálogo
+            // Permitir acceso a SUPPLIER, RESTAURANT y ADMIN para consulta de catálogo
             if (path.startsWith("/suppliers/")) {
-                // Si es endpoint de catálogo, permitir a SUPPLIER y RESTAURANT
-                if (path.matches("/suppliers/\\d+/catalog/?")) {
+                // Permitir a RESTAURANT y ADMIN ver productos de proveedores
+                if (path.matches("/suppliers/\\d+/products/?")) {
+                    if (!user.role.name().equals("RESTAURANT") && !user.role.name().equals("ADMIN") && !user.role.name().equals("SUPPLIER")) {
+                        throw new RuntimeException("User is not authorized to view supplier products");
+                    }
+                } else if (path.matches("/suppliers/\\d+/catalog/?")) {
                     if (!user.role.name().equals("SUPPLIER") && !user.role.name().equals("RESTAURANT")) {
                         throw new RuntimeException("User is not authorized to view supplier catalog");
                     }

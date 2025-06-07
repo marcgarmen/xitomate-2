@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import jakarta.transaction.Transactional;
 
 @Path("/restaurant")
 @Produces(MediaType.APPLICATION_JSON)
@@ -206,5 +207,22 @@ public class RestaurantController {
     @RolesAllowed("RESTAURANT")
     public List<SupplierProductDTO> getAvailableProducts() {
         return restaurantService.getAvailableProducts();
+    }
+
+    @PUT
+    @Path("/stock/{id}")
+    @RolesAllowed("RESTAURANT")
+    @Transactional
+    public Response updateStock(@PathParam("id") Long inventoryId, InventoryDTO dto, @Context jakarta.ws.rs.core.SecurityContext securityContext) {
+        String userId = securityContext.getUserPrincipal().getName();
+        var inventory = restaurantService.getInventoryById(inventoryId, Long.parseLong(userId));
+        if (inventory == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Ingrediente no encontrado")).build();
+        }
+        if (dto.getStock() != null) inventory.stock = dto.getStock();
+        if (dto.getUnidad() != null) inventory.unidad = dto.getUnidad();
+        if (dto.getPrecio() != null) inventory.precio = dto.getPrecio();
+        restaurantService.saveInventory(inventory);
+        return Response.ok().build();
     }
 } 

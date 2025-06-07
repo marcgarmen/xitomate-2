@@ -2,6 +2,7 @@
 
 import DashboardCards from "@/components/analysis/DashboardCards";
 import SalesByDishChart from "@/components/analysis/SalesByDishChart";
+import DishSalesForecastTable from '@/components/analysis/DishSalesForecastTable';
 import InventoryUsageTable from "@/components/analysis/InventoryUsageTable";
 import PurchaseRecommendations from "@/components/analysis/PurchaseRecommendations";
 import AlertList from "@/components/analysis/AlertList";
@@ -32,6 +33,7 @@ export default function AnalysisPage() {
           </section>
 
           <InventoryUsageTable />
+          <DishSalesForecastTable />
           <PurchaseRecommendations />
           <AlertList />
         </div>

@@ -977,4 +977,36 @@ public class RestaurantService {
         }
         return result;
     }
+
+    public List<Map<String, Object>> getDishSalesHistoryForForecast(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) throw new RuntimeException("Restaurant not found");
+
+        // Map<dishName, Map<date, cantidad>>
+        Map<String, Map<LocalDate, Integer>> dishSales = new HashMap<>();
+        saleRepository.find("restaurant", restaurant).list().forEach(sale -> {
+            LocalDate date = sale.fecha.toLocalDate();
+            for (SaleItem item : sale.items) {
+                String dishName = item.dish.nombre;
+                dishSales.computeIfAbsent(dishName, k -> new HashMap<>());
+                Map<LocalDate, Integer> dateMap = dishSales.get(dishName);
+                dateMap.put(date, dateMap.getOrDefault(date, 0) + item.cantidad);
+            }
+        });
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, Map<LocalDate, Integer>> entry : dishSales.entrySet()) {
+            Map<String, Object> obj = new HashMap<>();
+            obj.put("dish", entry.getKey());
+            List<String> dates = entry.getValue().keySet().stream().sorted().map(LocalDate::toString).toList();
+            List<Integer> quantities = dates.stream().map(d -> entry.getValue().getOrDefault(LocalDate.parse(d), 0)).toList();
+            // Solo platillos con al menos 3 días y cantidades variables
+            if (quantities.size() >= 3 && quantities.stream().distinct().count() > 1) {
+                obj.put("dates", dates);
+                obj.put("quantities", quantities);
+                result.add(obj);
+            }
+        }
+        return result;
+    }
 } 

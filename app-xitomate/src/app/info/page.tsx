@@ -2,7 +2,7 @@
 
 export default function ComoFuncionaPage() {
   return (
-    <main className="min-h-screen bg-[#FAF5F0] py-10 px-6">
+    <main className="min-h-screen bg-[#F2F2F2] py-10 px-6">
       <section className="max-w-5xl mx-auto text-center space-y-6">
         <h1 className="text-3xl font-bold text-[#0C051B]">
           ¿Cómo funciona Xitomate?

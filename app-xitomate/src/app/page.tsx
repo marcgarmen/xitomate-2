@@ -1,53 +1,42 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/Button/Button";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function Home() {
   const router = useRouter();
 
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center">
-      <section className="w-full max-w-7xl mx-auto px-6 py-12 flex flex-col-reverse md:flex-row items-center gap-12">
-
-        <div className="flex-1">
-          <h1 className="text-5xl font-extrabold text-gray-900 leading-tight mb-6">
-            Del campo a tu cocina, <br />
-            sin desperdicio y con{" "}
-            <span className="text-green-600">precisión</span>
+    <main className="h-screen bg-[#F2F2F2] flex items-center justify-center px-6 overflow-hidden">
+      <section className="w-full max-w-7xl mx-auto py-20 flex flex-col-reverse md:flex-row items-center gap-16">
+        <div className="flex-1 text-center md:text-left">
+          <h1 className="text-5xl font-extrabold text-gray-900 mb-6">
+            Haz crecer tu <span className="text-[#E11D48]">restaurante</span> sin desperdiciar un solo tomate 🍅
           </h1>
 
           <p className="text-lg text-gray-700 mb-6">
-            Automatizamos y predecimos el abastecimiento de tu negocio, en base a las tendencias de la industria.
+            Automatiza el control de insumos y mejora tus decisiones con datos reales.
           </p>
 
-          <Button
-            variant="SignUpRed"
-            onClick={() => router.push("/registro")}
+          <button
+            onClick={() => router.push('/registro')}
+            className="bg-[#E11D48] hover:bg-[#c9103b] text-white px-6 py-3 rounded-full font-bold shadow-md transition"
           >
-            Registro
-          </Button>
+            Regístrate gratis
+          </button>
         </div>
 
         <div className="flex-1 relative flex justify-center items-center">
+          <div className="absolute -z-10 w-[300px] h-[300px] bg-[#FBCFE8] rounded-[60%] blur-[60px]" />
           <Image
-            src="/ovalo.png"
-            alt="Fondo decorativo"
-            width={400}
-            height={400}
-            className="absolute z-0 translate-x-6 translate-y-6 pointer-events-none"
-          />
-
-          <Image
-            src="/bolsa.png"
-            alt="Bolsa de verduras"
-            width={360}
-            height={360}
-            className="z-10 relative"
+            src="/jitomate-3d.svg"
+            alt="Jitomate 3D"
+            width={600}
+            height={600}
+            className="drop-shadow-xl"
           />
         </div>
       </section>
-    </main>
-  );
+    </main>
+  );
 }

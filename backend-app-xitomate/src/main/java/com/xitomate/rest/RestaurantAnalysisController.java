@@ -153,4 +153,35 @@ public class RestaurantAnalysisController {
         }
         return Response.ok().build();
     }
+
+    @GET
+    @Path("/sales-forecast")
+    @RolesAllowed("RESTAURANT")
+    public Response getSalesForecast() {
+        String userId = securityContext.getUserPrincipal().getName();
+        List<Map<String, Object>> salesHistory = restaurantService.getDailySalesHistoryForForecast(userId);
+        String forecastJson = forecastClient.getForecast(salesHistory);
+
+        Object forecast;
+        String errorMsg = null;
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            if (forecastJson != null && forecastJson.trim().startsWith("[")) {
+                forecast = mapper.readValue(forecastJson, List.class);
+            } else {
+                forecast = List.of();
+                errorMsg = forecastJson;
+            }
+        } catch (Exception e) {
+            forecast = List.of();
+            errorMsg = "Error parsing forecast: " + e.getMessage();
+        }
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("forecast", forecast);
+        if (errorMsg != null) {
+            result.put("error", errorMsg);
+        }
+        return Response.ok(result).build();
+    }
 }

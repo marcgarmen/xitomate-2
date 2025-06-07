@@ -952,4 +952,29 @@ public class RestaurantService {
         entityManager.remove(inv);
         return true;
     }
+
+    public List<Map<String, Object>> getDailySalesHistoryForForecast(String userId) {
+        User restaurant = entityManager.find(User.class, Long.parseLong(userId));
+        if (restaurant == null) throw new RuntimeException("Restaurant not found");
+
+        // Agrupa ventas por fecha (YYYY-MM-DD) y suma el total
+        Map<LocalDate, Double> salesByDate = new HashMap<>();
+        saleRepository.find("restaurant", restaurant).list().forEach(sale -> {
+            LocalDate date = sale.fecha.toLocalDate();
+            salesByDate.put(date, salesByDate.getOrDefault(date, 0.0) + (sale.total != null ? sale.total.doubleValue() : 0.0));
+        });
+
+        // Ordena por fecha ascendente
+        List<LocalDate> sortedDates = new ArrayList<>(salesByDate.keySet());
+        Collections.sort(sortedDates);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (LocalDate date : sortedDates) {
+            Map<String, Object> obj = new HashMap<>();
+            obj.put("date", date.toString());
+            obj.put("total", salesByDate.get(date));
+            result.add(obj);
+        }
+        return result;
+    }
 } 

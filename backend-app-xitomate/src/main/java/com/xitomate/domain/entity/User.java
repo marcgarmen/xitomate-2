@@ -15,7 +15,11 @@ public class User {
     @Column(unique = true)
     public String email;
 
-    public String password;
+    @Column(name = "password_hash")
+    public String passwordHash;
+
+    @Column(name = "password_salt")
+    public String passwordSalt;
 
     @Enumerated(EnumType.STRING)
     public UserRole role;

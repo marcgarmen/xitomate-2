@@ -1,9 +1,9 @@
 package com.xitomate.rest;
 
-import com.xitomate.domain.entity.*;
-import com.xitomate.domain.enums.OrderStatus;
-import com.xitomate.domain.enums.PaymentMethod;
+import com.xitomate.domain.entity.User;
+import com.xitomate.domain.entity.SupplierProduct;
 import com.xitomate.domain.enums.UserRole;
+import com.xitomate.service.PasswordService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -12,12 +12,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Path("/test-data")
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,56 +23,34 @@ public class TestDataController {
     @Inject
     EntityManager entityManager;
 
+    @Inject
+    PasswordService passwordService;
+
     @POST
     @Path("/upload")
     @RolesAllowed("ADMIN")
     @Transactional
     public Response uploadTestData() {
         try {
-            // Create a test supplier if it doesn't exist
-            User supplier = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.email = :email", User.class)
-                .setParameter("email", "supplier@test.com")
-                .getResultList()
-                .stream()
-                .findFirst()
-                .orElseGet(() -> {
-                    User newSupplier = new User();
-                    newSupplier.email = "supplier@test.com";
-                    newSupplier.password = "password123";
-                    newSupplier.role = UserRole.SUPPLIER;
-                    newSupplier.nombre = "Test Supplier";
-                    newSupplier.ubicacion = "Test Location";
-                    entityManager.persist(newSupplier);
-                    return newSupplier;
-                });
+            // Create a test supplier
+            User newSupplier = new User();
+            newSupplier.email = "supplier@test.com";
+            newSupplier.passwordSalt = passwordService.generateSalt();
+            newSupplier.passwordHash = passwordService.hashPassword("password123", newSupplier.passwordSalt);
+            newSupplier.role = UserRole.SUPPLIER;
+            newSupplier.nombre = "Test Supplier";
+            newSupplier.ubicacion = "Test Location";
+            
+            entityManager.persist(newSupplier);
 
             // Create some test products
-            List<SupplierProduct> products = List.of(
-                createProduct(supplier, "Tomatoes", new BigDecimal("2.50"), "kg", 100),
-                createProduct(supplier, "Onions", new BigDecimal("1.50"), "kg", 150),
-                createProduct(supplier, "Potatoes", new BigDecimal("3.00"), "kg", 200),
-                createProduct(supplier, "Chicken", new BigDecimal("8.00"), "kg", 50),
-                createProduct(supplier, "Rice", new BigDecimal("4.00"), "kg", 300)
-            );
+            createProduct(newSupplier, "Jitomate 1 kg", new BigDecimal("25.00"), "kg", 100);
+            createProduct(newSupplier, "Cebolla 1 kg", new BigDecimal("20.00"), "kg", 100);
+            createProduct(newSupplier, "Pollo 1 kg", new BigDecimal("80.00"), "kg", 50);
+            createProduct(newSupplier, "Arroz 1 kg", new BigDecimal("30.00"), "kg", 200);
+            createProduct(newSupplier, "Aceite 1 lt", new BigDecimal("45.00"), "lt", 100);
 
-            for (SupplierProduct product : products) {
-                entityManager.persist(product);
-            }
-
-            return Response.ok(Map.of(
-                "message", "Test data created successfully",
-                "supplierId", supplier.id,
-                "products", products.stream()
-                    .map(p -> Map.of(
-                        "id", p.id,
-                        "nombre", p.nombre,
-                        "precio", p.precio,
-                        "unidad", p.unidad,
-                        "stock", p.stock
-                    ))
-                    .collect(Collectors.toList())
-            )).build();
+            return Response.ok(Map.of("message", "Test data created successfully")).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", e.getMessage()))
@@ -91,6 +65,7 @@ public class TestDataController {
         product.precio = precio;
         product.unidad = unidad;
         product.stock = stock;
+        entityManager.persist(product);
         return product;
     }
 } 

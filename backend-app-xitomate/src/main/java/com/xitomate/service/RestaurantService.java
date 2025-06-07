@@ -37,24 +37,49 @@ public class RestaurantService {
     @Inject
     SupplierRepository supplierRepository;
 
+    @Inject
+    PasswordService passwordService;
+
     @Transactional
     public UserDTO register(UserDTO userDTO) {
+        User existingUser = entityManager.createQuery(
+            "SELECT u FROM User u WHERE u.email = :email", User.class)
+            .setParameter("email", userDTO.getEmail())
+            .getResultList()
+            .stream()
+            .findFirst()
+            .orElse(null);
+
+        if (existingUser != null) {
+            throw new RuntimeException("User already exists");
+        }
+
         User user = new User();
         user.email = userDTO.getEmail();
-        user.password = userDTO.getPassword(); // En producción, esto debería estar hasheado
+        user.passwordSalt = passwordService.generateSalt();
+        user.passwordHash = passwordService.hashPassword(userDTO.getPassword(), user.passwordSalt);
         user.role = UserRole.RESTAURANT;
         user.nombre = userDTO.getNombre();
         user.ubicacion = userDTO.getUbicacion();
-        userRepository.persist(user);
+
+        entityManager.persist(user);
         return userDTO;
     }
 
     public String login(UserDTO userDTO) {
-        User user = userRepository.find("email", userDTO.getEmail()).firstResult();
-        if (user != null && user.password.equals(userDTO.getPassword())) { // En producción, comparar hashes
-            return "JWT_TOKEN"; // En producción, generar un token JWT real
+        User user = entityManager.createQuery(
+            "SELECT u FROM User u WHERE u.email = :email", User.class)
+            .setParameter("email", userDTO.getEmail())
+            .getResultList()
+            .stream()
+            .findFirst()
+            .orElse(null);
+
+        if (user == null || !passwordService.verifyPassword(userDTO.getPassword(), user.passwordSalt, user.passwordHash)) {
+            throw new RuntimeException("Invalid credentials");
         }
-        throw new RuntimeException("Invalid credentials");
+
+        return generateToken(user);
     }
 
     @Transactional
@@ -861,5 +886,10 @@ public class RestaurantService {
                 return dto;
             })
             .collect(Collectors.toList());
+    }
+
+    private String generateToken(User user) {
+        // En producción, implementar generación de JWT real
+        return "JWT_TOKEN_" + user.id;
     }
 } 

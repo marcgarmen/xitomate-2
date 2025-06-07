@@ -2,6 +2,8 @@ package com.xitomate.infrastructure.rest;
 
 import com.xitomate.domain.entity.User;
 import com.xitomate.domain.enums.UserRole;
+import com.xitomate.service.PasswordService;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -15,8 +17,11 @@ import java.util.Map;
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserResource {
 
-    @jakarta.inject.Inject
+    @Inject
     EntityManager entityManager;
+
+    @Inject
+    PasswordService passwordService;
 
     @POST
     @Path("/register")
@@ -61,7 +66,8 @@ public class UserResource {
             // Create a test supplier
             User supplier = new User();
             supplier.email = "supplier@test.com";
-            supplier.password = "password123";
+            supplier.passwordSalt = passwordService.generateSalt();
+            supplier.passwordHash = passwordService.hashPassword("password123", supplier.passwordSalt);
             supplier.role = UserRole.SUPPLIER;
             supplier.nombre = "Test Supplier";
             supplier.ubicacion = "Test Location";
@@ -76,7 +82,8 @@ public class UserResource {
             // Create a test restaurant
             User restaurant = new User();
             restaurant.email = "restaurant@test.com";
-            restaurant.password = "password123";
+            restaurant.passwordSalt = passwordService.generateSalt();
+            restaurant.passwordHash = passwordService.hashPassword("password123", restaurant.passwordSalt);
             restaurant.role = UserRole.RESTAURANT;
             restaurant.nombre = "Test Restaurant";
             restaurant.ubicacion = "Test Location";

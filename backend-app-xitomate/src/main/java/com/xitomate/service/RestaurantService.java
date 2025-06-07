@@ -735,16 +735,68 @@ public class RestaurantService {
         return result;
     }
 
+    @Transactional
+    public void addOrUpdateInventory(Long restaurantId, Long supplierProductId, String nombreLibre, Integer stock, String unidad, BigDecimal precio) {
+        User restaurant = entityManager.find(User.class, restaurantId);
+        if (restaurant == null) throw new RuntimeException("Restaurant not found");
+
+        // Si es un producto de proveedor, obtener sus valores por defecto
+        SupplierProduct supplierProduct = null;
+        if (supplierProductId != null) {
+            supplierProduct = entityManager.find(SupplierProduct.class, supplierProductId);
+            if (supplierProduct == null) throw new RuntimeException("Supplier product not found");
+            
+            // Usar valores del producto si no se proporcionan
+            if (unidad == null) unidad = supplierProduct.unidad;
+            if (precio == null) precio = supplierProduct.precio;
+        }
+
+        RestaurantInventory inventory;
+        if (supplierProductId != null) {
+            inventory = entityManager.createQuery(
+                "SELECT ri FROM RestaurantInventory ri WHERE ri.restaurant.id = :restaurantId AND ri.supplierProduct.id = :supplierProductId", RestaurantInventory.class)
+                .setParameter("restaurantId", restaurantId)
+                .setParameter("supplierProductId", supplierProductId)
+                .getResultStream().findFirst().orElse(null);
+        } else {
+            inventory = entityManager.createQuery(
+                "SELECT ri FROM RestaurantInventory ri WHERE ri.restaurant.id = :restaurantId AND ri.nombreLibre = :nombreLibre", RestaurantInventory.class)
+                .setParameter("restaurantId", restaurantId)
+                .setParameter("nombreLibre", nombreLibre)
+                .getResultStream().findFirst().orElse(null);
+        }
+
+        if (inventory == null) {
+            inventory = new RestaurantInventory();
+            inventory.restaurant = restaurant;
+            inventory.supplierProduct = supplierProduct;
+            inventory.nombreLibre = nombreLibre;
+        }
+
+        // Actualizar solo los campos que no son null
+        if (stock != null) inventory.stock = stock;
+        if (unidad != null) inventory.unidad = unidad;
+        if (precio != null) inventory.precio = precio;
+
+        entityManager.persist(inventory);
+    }
+
     public List<Map<String, Object>> getCurrentInventory(String userId) {
         User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) throw new RuntimeException("Restaurant not found");
-
-        return supplierProductRepository.listAll().stream()
-            .map(product -> {
+        List<RestaurantInventory> inventory = entityManager.createQuery(
+            "SELECT ri FROM RestaurantInventory ri WHERE ri.restaurant.id = :restaurantId", RestaurantInventory.class)
+            .setParameter("restaurantId", restaurant.id)
+            .getResultList();
+        return inventory.stream()
+            .map(ri -> {
                 Map<String, Object> map = new HashMap<>();
-                map.put("ingredient", product.nombre);
-                map.put("stock", product.stock);
-                map.put("unit", product.unidad);
+                map.put("ingredient", ri.supplierProduct != null ? ri.supplierProduct.nombre : ri.nombreLibre);
+                map.put("stock", ri.stock);
+                map.put("unit", ri.unidad);
+                map.put("precio", ri.precio);
+                map.put("supplierProductId", ri.supplierProduct != null ? ri.supplierProduct.id : null);
+                map.put("nombreLibre", ri.nombreLibre);
                 return map;
             })
             .collect(Collectors.toList());

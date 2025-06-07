@@ -9,6 +9,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.time.LocalDate;
 import java.util.*;
+import jakarta.transaction.Transactional;
 
 @Path("/restaurant/analysis")
 @Produces(MediaType.APPLICATION_JSON)
@@ -103,5 +104,22 @@ public class RestaurantAnalysisController {
     public List<Map<String, Object>> getInventory() {
         String userId = securityContext.getUserPrincipal().getName();
         return restaurantService.getCurrentInventory(userId);
+    }
+
+    @POST
+    @Path("/inventory")
+    @RolesAllowed("RESTAURANT")
+    @Transactional
+    public Response addOrUpdateInventory(InventoryDTO dto) {
+        String userId = securityContext.getUserPrincipal().getName();
+        restaurantService.addOrUpdateInventory(
+            Long.parseLong(userId),
+            dto.getSupplierProductId(),
+            dto.getNombreLibre(),
+            dto.getStock(),
+            dto.getUnidad(),
+            dto.getPrecio()
+        );
+        return Response.ok().build();
     }
 }

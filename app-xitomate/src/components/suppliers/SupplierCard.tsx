@@ -20,34 +20,47 @@ export default function SupplierCard({ supplier }: Props) {
   const products = supplier.topProducts ?? []
 
   return (
-    <Card>
+    <Card className="rounded-2xl border-0 shadow-sm hover:shadow-lg transition-shadow duration-200">
       <CardContent className="p-6 flex items-center gap-6">
-        <Image
-          src={supplier.avatar}
-          alt={supplier.name}
-          width={72}
-          height={72}
-          className="rounded-xl object-cover shrink-0"
-        />
+        <div className="w-16 h-16 relative flex-shrink-0">
+          <Image
+            src={supplier.avatar}
+            alt={supplier.name}
+            width={72}
+            height={72}
+            className="rounded-full object-cover border-2 border-[#A1C374]"
+          />
+        </div>
 
         <div className="flex-1 space-y-1">
-          <h3 className="text-lg font-bold">{supplier.name}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">
+            {supplier.name}
+          </h3>
 
           <p className="flex items-center text-sm text-gray-600">
-            <MapPin size={14} className="mr-1" />
+            <MapPin size={14} className="mr-1 text-[#A1C374]" />
             {supplier.coverage}
           </p>
 
-          <p className="text-xs text-gray-500">
-            Top productos:&nbsp;
+          <p className="text-sm text-gray-700">
+            <span className="font-medium">Top productos:</span>{' '}
             {products.length ? products.join(', ') : 'Sin productos'}
           </p>
         </div>
 
-        <Link href={`/marketplace/${supplier.id}`}>
+        <Link href={`/marketplace/${supplier.id}`} className="flex-shrink-0">
           <Button
             variant="outline"
-            className="cursor-pointer border-gray-300 hover:bg-gray-100"
+            size="sm"
+            className="
+              border-gray-600
+              text-gray-900
+              bg-transparent
+              hover:bg-gray-100
+              px-4 py-2 
+              font-medium 
+              cursor-pointer
+            "
           >
             Ver productos
           </Button>

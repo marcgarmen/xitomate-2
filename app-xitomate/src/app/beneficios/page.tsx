@@ -78,7 +78,7 @@ export default function BeneficiosPage() {
       <div className="mt-16">
         <button
           onClick={() => router.push('/registro')}
-          className="bg-[#E11D48] hover:bg-[#c9103b] text-white px-8 py-4 rounded-full font-bold shadow-md transition"
+          className="cursor-pointer bg-[#E11D48] hover:bg-[#c9103b] text-white px-8 py-4 rounded-full font-bold shadow-md transition"
         >
           Empieza Ahora
         </button>

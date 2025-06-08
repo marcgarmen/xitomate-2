@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*="size-"])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*="size-"])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]',
   {
     variants: {
       variant: {
@@ -24,7 +24,7 @@ const buttonVariants = cva(
         AccountRed:
           'border-2 border-[#F45E62] text-[#F45E62] bg-transparent hover:bg-[#F45E62]/10 focus-visible:ring-[#F45E62]/50 shadow-md px-6 py-2 rounded-full',
 
-        // 🔥 NUEVO: botón verde contorno
+        // Botón verde contorno
         OutlineGreen:
           'border-2 border-[#A1C374] text-[#A1C374] bg-transparent hover:bg-[#A1C374]/10 focus-visible:ring-[#A1C374]/50 shadow-md px-6 py-2 rounded-full',
       },

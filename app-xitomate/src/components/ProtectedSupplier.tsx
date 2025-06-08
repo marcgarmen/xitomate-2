@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect } from "react";
@@ -18,17 +19,26 @@ export default function ProtectedSupplier({ children }: { children: ReactNode })
   if (role === "proveedor") return <>{children}</>;
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#FAF5F0]">
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold text-[#E11D48]">Acceso denegado</h1>
-        <p>No tienes permisos para ver esta página.</p>
-        <button
-          className="px-4 py-2 mt-3 rounded-md bg-[#E11D48] text-white"
-          onClick={() => router.replace("/")}
-        >
-          Ir a inicio
-        </button>
-      </div>
+    <main className="min-h-screen bg-[#F2F2F2] flex flex-col items-center justify-center px-6 py-16">
+      <Image
+        src="/tomate-lock.svg"
+        alt="Acceso Denegado"
+        width={128}
+        height={128}
+        className="mb-6"
+      />
+      <h1 className="text-4xl md:text-5xl font-extrabold text-[#E11D48] mb-4">
+        Acceso denegado
+      </h1>
+      <p className="text-lg text-gray-700 mb-6">
+        No tienes permisos para ver esta página.
+      </p>
+      <button
+        className="cursor-pointer bg-[#E11D48] hover:bg-[#c9103b] text-white px-8 py-4 rounded-full font-bold shadow-md transition"
+        onClick={() => router.replace("/")}
+      >
+        Ir a inicio
+      </button>
     </main>
   );
 }

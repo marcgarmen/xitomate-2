@@ -26,7 +26,15 @@ export function SignInFields() {
       login(res.token, res.role.toLowerCase());
       localStorage.setItem('userEmail', res.email);
       toast('success', '¡Inicio de sesión exitoso!');
-      router.push('/');
+
+      const role = res.role.toLowerCase();
+      if (role === 'restaurant') {
+        router.push('/platillos');
+      } else if (role === 'supplier') {
+        router.push('/productos');
+      } else {
+        router.push('/');
+      }
     } catch (err: any) {
       toast('error', err?.response?.data?.error || err.message || 'Credenciales incorrectas');
     } finally {
@@ -57,7 +65,7 @@ export function SignInFields() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#E11D48] hover:bg-[#c9103b] text-white px-6 py-3 rounded-full font-bold shadow-md transition disabled:opacity-50"
+        className="cursor-pointer w-full bg-[#E11D48] hover:bg-[#c9103b] text-white px-6 py-3 rounded-full font-bold shadow-md transition disabled:opacity-50"
       >
         {loading ? 'Ingresando...' : 'Ingresar'}
       </button>

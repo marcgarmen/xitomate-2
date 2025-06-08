@@ -24,20 +24,16 @@ const menuItems = {
     { label: 'Ingreso', href: '/login', isButton: true }
   ],
   restaurante: [
-    { label: 'Inicio', href: '/' },
     { label: 'Platillos', href: '/platillos' },
     { label: 'Ventas', href: '/ventas' },
     { label: 'Marketplace', href: '/marketplace' },
     { label: 'Análisis', href: '/analisis' },
-    { label: 'ExploraIA', href: '/exploraia' },
     { label: 'Mi cuenta', href: '/login', isButton: true }
   ],
   proveedor: [
     { label: 'Inicio', href: '/' },
     { label: 'Mis productos', href: '/productos' },
     { label: 'Pedidos', href: '/pedidos' },
-    { label: 'Análisis', href: '/analisis' },
-    { label: 'ExploraIA', href: '/exploraia' },
     { label: 'Mi cuenta', href: '/login', isButton: true }
   ],
   admin: [

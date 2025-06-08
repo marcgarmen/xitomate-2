@@ -20,12 +20,12 @@ export default function InfoPage() {
     {
       title: '3. Predice tu demanda',
       desc: 'Pronosticamos tus ventas para que compres justo la cantidad necesaria.',
-      img: '/tomate-prediccion.svg',
+      img: '/tomate-datos.svg',
     },
     {
       title: '4. Monitorea en tiempo real',
       desc: 'Visualiza tu stock y reportes desde cualquier dispositivo y toma decisiones al instante.',
-      img: '/tomate-reportes.svg',
+      img: '/tomate-control.svg',
     },
   ];
 
@@ -72,7 +72,7 @@ export default function InfoPage() {
 
       <button
         onClick={() => router.push('/registro')}
-        className="mt-16 bg-[#E11D48] hover:bg-[#c9103b] text-white px-8 py-3 rounded-full font-bold shadow-md transition"
+        className="cursor-pointer mt-16 bg-[#E11D48] hover:bg-[#c9103b] text-white px-8 py-3 rounded-full font-bold shadow-md transition"
       >
         ¡Empieza ya y ahorra!
       </button>

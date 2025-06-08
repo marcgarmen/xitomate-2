@@ -32,7 +32,7 @@ export default function LoginPage() {
             ¿No tienes cuenta?{' '}
             <button
               onClick={() => router.push('/registro')}
-              className="text-[#E11D48] font-semibold hover:underline"
+              className="cursor-pointer text-[#E11D48] font-semibold hover:underline"
             >
               Regístrate aquí
             </button>

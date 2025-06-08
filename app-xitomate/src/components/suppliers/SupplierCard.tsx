@@ -43,7 +43,7 @@ export default function SupplierCard({ supplier }: Props) {
           </p>
 
           <p className="text-sm text-gray-700">
-            <span className="font-medium">Top productos:</span>{' '}
+            <span className="font-medium">Productos recientes:</span>{' '}
             {products.length ? products.join(', ') : 'Sin productos'}
           </p>
         </div>

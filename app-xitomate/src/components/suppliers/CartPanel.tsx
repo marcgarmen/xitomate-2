@@ -15,9 +15,10 @@ type Props = {
   items: Item[]
   onAdd: (id: number) => void
   onRemove: (id: number) => void
+  onCheckout: () => void
 }
 
-export default function CartPanel({ items, onAdd, onRemove }: Props) {
+export default function CartPanel({ items, onAdd, onRemove, onCheckout }: Props) {
   const total = items.reduce((s, i) => s + i.precio * i.cantidad, 0)
 
   return (
@@ -26,7 +27,7 @@ export default function CartPanel({ items, onAdd, onRemove }: Props) {
 
       {items.length === 0 && <p className="text-sm">Vacío. Añade productos</p>}
 
-      {items.map(i => (
+      {items.map((i) => (
         <div
           key={i.id}
           className="mb-3 space-y-1 border-b pb-3 last:border-none"
@@ -60,9 +61,12 @@ export default function CartPanel({ items, onAdd, onRemove }: Props) {
             <span>Total</span>
             <span>${total.toFixed(2)}</span>
           </div>
-          <Button className="mt-4 w-full flex items-center gap-2" disabled>
+          <Button
+            className="mt-4 w-full flex items-center gap-2"
+            onClick={onCheckout}
+          >
             <Check className="h-4 w-4" />
-            Ir a pagar (Stripe)
+            Realizar pedido
           </Button>
         </>
       )}

@@ -5,6 +5,7 @@ import ProtectedSupplier from '@/components/ProtectedSupplier'
 import OrderList from '@/components/Pedidos/OrderList'
 import type { Pedido } from '@/components/Pedidos/types'
 import { fetchPedidos, updateOrderStatus } from '@/service/pedido'
+import { supplierChannel } from '@/service/events'
 
 export default function PedidosPage() {
   const [pedidos, setPedidos] = useState<Pedido[]>([])
@@ -25,7 +26,9 @@ export default function PedidosPage() {
   async function handleAccept(id: number) {
     try {
       await updateOrderStatus(id, 'ACEPTADO')
-      setPedidos(prev => prev.filter(p => p.id !== id))
+      setPedidos((prev) => prev.filter((p) => p.id !== id))
+
+      supplierChannel.postMessage('reload')
     } catch (e) {
       console.error('Error aceptando pedido:', e)
     }
@@ -34,7 +37,7 @@ export default function PedidosPage() {
   async function handleReject(id: number) {
     try {
       await updateOrderStatus(id, 'RECHAZADO')
-      setPedidos(prev => prev.filter(p => p.id !== id))
+      setPedidos((prev) => prev.filter((p) => p.id !== id))
     } catch (e) {
       console.error('Error rechazando pedido:', e)
     }

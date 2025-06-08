@@ -7,6 +7,8 @@ export interface OrderItem {
 
 export interface Pedido {
   id: number
+  supplierId: number
+
   restaurantName: string
   items: OrderItem[]
   total: number

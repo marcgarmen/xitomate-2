@@ -38,13 +38,13 @@ export async function fetchPedidos(): Promise<UIPedido[]> {
   }
 
   const raw: RawPedido[] = await res.json()
-  return raw.map(o => ({
+  return raw.map((o) => ({
     id: o.id,
     restaurantName: o.restaurantName,
-    // si el backend no envía items, lo convertimos en array vacío
     items: o.items ?? [],
     total: o.total,
     status: o.status?.toLowerCase() as UIPedido['status'],
+    supplierId,
   }))
 }
 

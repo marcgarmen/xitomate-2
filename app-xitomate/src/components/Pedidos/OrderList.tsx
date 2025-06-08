@@ -20,12 +20,12 @@ export default function OrderList({ pedidos, onAccept, onReject }: Props) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {pedidos.map(p => (
+      {pedidos.map((p) => (
         <OrderCard
           key={p.id}
           pedido={p}
-          onAccept={onAccept}
-          onReject={onReject}
+          onAccept={() => onAccept(p.id)}
+          onReject={() => onReject(p.id)}
         />
       ))}
     </div>

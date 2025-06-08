@@ -3,19 +3,19 @@
 import { useEffect, useState, useRef } from 'react'
 import SupplierCard from './SupplierCard'
 import { getToken, SupplierApi, fetchSuppliers } from '@/service/auth'
-import { fetchSupplierProducts } from '@/service/supplier'
+import { fetchSupplierProducts, ProductApi } from '@/service/supplier'
 import { supplierChannel } from '@/service/events'
 
 export default function SuppliersClient() {
-  const [suppliers, setSuppliers] = useState<
-    (SupplierApi & { topProducts: string[] })[]
-  >([])
+  const [suppliers, setSuppliers] = useState<(SupplierApi & { topProducts: string[] })[]>([])
   const [error, setError] = useState<string | null>(null)
 
   const bcRef = useRef<BroadcastChannel>(supplierChannel)
 
   useEffect(() => {
-    bcRef.current.onmessage = () => loadSuppliers()
+    bcRef.current.onmessage = () => {
+      loadSuppliers()
+    }
     loadSuppliers()
     return () => {
       bcRef.current.close()
@@ -33,8 +33,10 @@ export default function SuppliersClient() {
       const withProducts = await Promise.all(
         base.map(async (s) => {
           try {
-            const cat = await fetchSupplierProducts(s.id)
-            return { ...s, topProducts: cat.slice(0, 3).map((p) => p.nombre) }
+            const cat: ProductApi[] = await fetchSupplierProducts(s.id)
+            const sorted = [...cat].sort((a, b) => b.id - a.id)
+            const top = sorted.slice(0, 3).map((p) => p.nombre)
+            return { ...s, topProducts: top }
           } catch {
             return { ...s, topProducts: [] }
           }

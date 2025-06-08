@@ -43,7 +43,7 @@ export function SignInFields() {
         value={formData.email}
         onChange={handleChange}
         required
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A1C374]"
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
       />
       <input
         type="password"
@@ -52,12 +52,12 @@ export function SignInFields() {
         value={formData.password}
         onChange={handleChange}
         required
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A1C374]"
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
       />
       <button
         type="submit"
-        className="w-full bg-[#A1C374] text-white py-2 px-4 rounded-md hover:bg-[#8AB25A]"
         disabled={loading}
+        className="w-full bg-[#E11D48] hover:bg-[#c9103b] text-white px-6 py-3 rounded-full font-bold shadow-md transition disabled:opacity-50"
       >
         {loading ? 'Ingresando...' : 'Ingresar'}
       </button>

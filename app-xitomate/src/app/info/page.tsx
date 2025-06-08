@@ -1,60 +1,81 @@
-"use client";
+'use client';
 
-export default function ComoFuncionaPage() {
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
+export default function InfoPage() {
+  const router = useRouter();
+
+  const pasos = [
+    {
+      title: '1. Regístrate en segundos',
+      desc: 'Crea tu cuenta rápidamente y da de alta tu restaurante en un par de clics.',
+      img: '/tomate-registro.svg',
+    },
+    {
+      title: '2. Sube tu inventario',
+      desc: 'Agrega productos e insumos con precios y cantidades para tener todo controlado.',
+      img: '/tomate-inventario.svg',
+    },
+    {
+      title: '3. Predice tu demanda',
+      desc: 'Pronosticamos tus ventas para que compres justo la cantidad necesaria.',
+      img: '/tomate-prediccion.svg',
+    },
+    {
+      title: '4. Monitorea en tiempo real',
+      desc: 'Visualiza tu stock y reportes desde cualquier dispositivo y toma decisiones al instante.',
+      img: '/tomate-reportes.svg',
+    },
+  ];
+
   return (
-    <main className="min-h-screen bg-[#F2F2F2] py-10 px-6">
-      <section className="max-w-5xl mx-auto text-center space-y-6">
-        <h1 className="text-3xl font-bold text-[#0C051B]">
-          ¿Cómo funciona Xitomate?
+    <main className="min-h-screen bg-white flex flex-col items-center px-6 py-12">
+
+      <div className="text-center max-w-3xl mb-16">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
+          Así de fácil funciona <span className="text-[#E11D48]">Xitomate</span>
         </h1>
-        <p className="text-gray-700 max-w-2xl mx-auto">
-          Xitomate conecta directamente restaurantes con productores agrícolas
-          locales. Nuestro sistema facilita la creación de pedidos, el control
-          de inventarios, la confirmación de entregas y la proyección de compras
-          futuras.
+        <p className="text-lg text-gray-700">
+          Desde el registro hasta el control total de tus insumos, sigue estos 4 pasos y olvídate del desperdicio.
         </p>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-10">
-          <Card
-            title="Automatización inteligente"
-            description="Reduce el trabajo operativo. Xitomate automatiza pedidos según demanda real y disponibilidad de productores."
-          />
-          <Card
-            title="Conexión directa con productores locales"
-            description="Accede a insumos orgánicos y frescos sin intermediarios. Fortalece tu comunidad y reduce costos logísticos."
-          />
-          <Card
-            title="Decisiones basadas en datos en tiempo real"
-            description="Toma decisiones informadas. Anticipa necesidades con análisis de tendencias y comportamientos."
-          />
-          <Card
-            title="Reducción de desperdicio alimentario"
-            description="Pide lo justo, usa todo. Evita compras innecesarias y optimiza tu inventario."
-          />
-          <Card
-            title="Sostenibilidad como ventaja competitiva"
-            description="Tu restaurante alineado con lo que el mundo valora. Demuestra compromiso con prácticas responsables y locales."
-          />
-          <Card
-            title="Escalabilidad y eficiencia operativa"
-            description="Haz más con menos. Xitomate se adapta al crecimiento de tu restaurante sin complicaciones."
-          />
-        </div>
+      <section className="w-full max-w-5xl space-y-20">
+        {pasos.map((paso, idx) => {
+          const isEven = idx % 2 === 1;
+          return (
+            <div
+              key={paso.title}
+              className={`flex flex-col-reverse md:flex-row items-center ${
+                isEven ? 'md:flex-row-reverse' : ''
+              } gap-8`}
+            >
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{paso.title}</h2>
+                <p className="text-gray-700">{paso.desc}</p>
+              </div>
+              <div className="flex-1 flex justify-center">
+                <div className="w-40 h-40 relative">
+                  <Image
+                    src={paso.img}
+                    alt={paso.title}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </section>
+
+      <button
+        onClick={() => router.push('/registro')}
+        className="mt-16 bg-[#E11D48] hover:bg-[#c9103b] text-white px-8 py-3 rounded-full font-bold shadow-md transition"
+      >
+        ¡Empieza ya y ahorra!
+      </button>
     </main>
-  );
-}
-
-type CardProps = {
-  title: string;
-  description: string;
-};
-
-function Card({ title, description }: CardProps) {
-  return (
-    <div className="bg-white shadow-md rounded-lg p-6 text-left border-t-4 border-[#A1C374]">
-      <h3 className="text-lg font-semibold text-[#0C051B]">{title}</h3>
-      <p className="text-gray-600 mt-2 text-sm">{description}</p>
-    </div>
   );
 }

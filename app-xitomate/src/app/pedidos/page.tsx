@@ -1,37 +1,43 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import ProtectedSupplier from "@/components/ProtectedSupplier";
-import OrderList from "@/components/Pedidos/OrderList";
-import type { Pedido } from "@/components/Pedidos/types";
-import { fetchPedidos } from "@/service/pedido";
+import { useState, useEffect } from 'react'
+import ProtectedSupplier from '@/components/ProtectedSupplier'
+import OrderList from '@/components/Pedidos/OrderList'
+import type { Pedido } from '@/components/Pedidos/types'
+import { fetchPedidos, updateOrderStatus } from '@/service/pedido'
 
 export default function PedidosPage() {
-  const [pedidos, setPedidos] = useState<Pedido[]>([]);
+  const [pedidos, setPedidos] = useState<Pedido[]>([])
 
   useEffect(() => {
-    loadPedidos();
-  }, []);
+    loadPedidos()
+  }, [])
 
   async function loadPedidos() {
-    const lista = await fetchPedidos();
-    setPedidos(lista);
+    try {
+      const lista = await fetchPedidos()
+      setPedidos(lista)
+    } catch (e) {
+      console.error('Error cargando pedidos:', e)
+    }
   }
 
-  function handleAccept(id: number) {
-    setPedidos((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, status: "aceptado" } : p
-      )
-    );
+  async function handleAccept(id: number) {
+    try {
+      await updateOrderStatus(id, 'ACEPTADO')
+      setPedidos(prev => prev.filter(p => p.id !== id))
+    } catch (e) {
+      console.error('Error aceptando pedido:', e)
+    }
   }
 
-  function handleReject(id: number) {
-    setPedidos((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, status: "rechazado" } : p
-      )
-    );
+  async function handleReject(id: number) {
+    try {
+      await updateOrderStatus(id, 'RECHAZADO')
+      setPedidos(prev => prev.filter(p => p.id !== id))
+    } catch (e) {
+      console.error('Error rechazando pedido:', e)
+    }
   }
 
   return (
@@ -47,5 +53,5 @@ export default function PedidosPage() {
         </div>
       </main>
     </ProtectedSupplier>
-  );
+  )
 }

@@ -10,11 +10,14 @@ export async function registerUser(data: {
   role: string;
   ubicacion: string;
 }) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/users/register`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }
+  );
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
@@ -35,7 +38,7 @@ export async function loginUser(email: string, password: string) {
 
 const TOKEN_KEY = 'xitomate_token';
 
-export function getToken() {
+export function getToken(): string {
   if (typeof window === 'undefined') return '';
   return (
     localStorage.getItem(TOKEN_KEY) ??
@@ -45,7 +48,9 @@ export function getToken() {
 }
 
 export function saveToken(token: string) {
-  if (typeof window !== 'undefined') localStorage.setItem(TOKEN_KEY, token);
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
 }
 
 export function logoutUser() {
@@ -58,7 +63,7 @@ export function logoutUser() {
 }
 
 //--------------------------------------------------
-// 3.  Proveedores (no cambia)
+// 3.  Proveedores (ahora con Authorization)
 //--------------------------------------------------
 
 export type SupplierApi = {
@@ -68,10 +73,26 @@ export type SupplierApi = {
 };
 
 export async function fetchSuppliers(): Promise<SupplierApi[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/suppliers`, {
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error('No se pudo obtener proveedores');
+  const token = getToken();
+  if (!token) {
+    throw new Error('No hay token válido para obtener proveedores');
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/suppliers`,
+    {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      cache: 'no-store',
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Error ${res.status} al obtener proveedores`);
+  }
+
   return res.json();
 }
 
@@ -131,7 +152,11 @@ export async function searchSupplierProducts(
   );
 
   if (!res.ok) {
-    console.error('searchSupplierProducts →', res.status, await res.text());
+    console.error(
+      'searchSupplierProducts →',
+      res.status,
+      await res.text()
+    );
     return [];
   }
 
@@ -149,35 +174,40 @@ export async function searchSupplierProducts(
 // 6.  Ventas
 //--------------------------------------------------
 
-// Payload que el backend espera para crear una nueva venta
+
 export interface CreateSaleRequest {
-  metodoPago: string; // 'CASH' | 'COD' | 'CARD'
+  metodoPago: string;
   items: {
     dishId: number;
     cantidad: number;
   }[];
 }
 
-// POST /restaurant/sales
-export async function createSale(data: CreateSaleRequest): Promise<any> {
+
+export async function createSale(
+  data: CreateSaleRequest
+): Promise<any> {
   const token = getToken();
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  );
   if (!res.ok) {
     const text = await res.text();
     console.error('createSale →', res.status, text);
     throw new Error(text);
   }
-  return res.json(); // → { id, metodoPago, items, fecha, total, … }
+  return res.json();
 }
 
-// GET /restaurant/sales → devuelve todas las ventas de ese restaurante
+
 export async function fetchSales(): Promise<
   Array<{
     id: number;
@@ -188,10 +218,13 @@ export async function fetchSales(): Promise<
   }>
 > {
   const token = getToken();
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales`, {
-    headers: { Authorization: `Bearer ${token}` },
-    cache: 'no-store',
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    }
+  );
   if (!res.ok) {
     const err = await res.text();
     console.error('fetchSales →', res.status, err);
@@ -201,7 +234,9 @@ export async function fetchSales(): Promise<
 }
 
 // DELETE /restaurant/sales/{id}
-export async function deleteSaleRequest(id: number): Promise<void> {
+export async function deleteSaleRequest(
+  id: number
+): Promise<void> {
   const token = getToken();
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales/${id}`,
@@ -217,7 +252,6 @@ export async function deleteSaleRequest(id: number): Promise<void> {
   }
 }
 
-// PUT /restaurant/sales/{id}
 export async function updateSaleRequest(
   id: number,
   data: CreateSaleRequest

@@ -6,6 +6,7 @@ COPY backend-app-xitomate/pom.xml .
 COPY backend-app-xitomate/src ./src
 COPY backend-app-xitomate/.mvn ./.mvn
 COPY backend-app-xitomate/mvnw .
+RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Run stage

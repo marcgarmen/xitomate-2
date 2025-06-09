@@ -11,6 +11,8 @@ See the README files in each directory for setup instructions.
 
 
 To build the backend using Google Cloud Build, a Dockerfile is provided at the repository root. The build context only includes the backend application.
+The `cloudbuild.yaml` file now also deploys the resulting image to Cloud Run so
+new changes are automatically available once the build finishes.
 
 For running locally:
 Clone repositories in 2 different Windows:

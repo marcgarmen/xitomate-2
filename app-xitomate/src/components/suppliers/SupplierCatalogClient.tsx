@@ -34,7 +34,7 @@ export default function SupplierCatalogClient({ supplierId }: Props) {
       loadCatalog()
     }
     loadCatalog()
-    return () => void bcRef.current.close()
+    return () => {}
   }, [supplierId])
 
   async function loadCatalog() {

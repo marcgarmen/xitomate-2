@@ -17,9 +17,7 @@ export default function SuppliersClient() {
       loadSuppliers()
     }
     loadSuppliers()
-    return () => {
-      bcRef.current.close()
-    }
+    return () => {}
   }, [])
 
   async function loadSuppliers() {

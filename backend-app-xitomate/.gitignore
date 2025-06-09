@@ -46,9 +46,6 @@ nb-configuration.xml
 /.quarkus/cli/plugins/
 # TLS Certificates
 .certs/
-
-# Local test classes
+src/main/resources/firebase/
 MySQLConnectionTest.java
 
-# Firebase credentials
-src/main/resources/firebase/*.json

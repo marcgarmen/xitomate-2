@@ -6,6 +6,7 @@ steps:
     - 'gcr.io/$PROJECT_ID/backend-app-xitomate'
     - '-f'
     - 'backend-app-xitomate/Dockerfile'
-    - 'backend-app-xitomate'
+
+    - '.'
 images:
 - 'gcr.io/$PROJECT_ID/backend-app-xitomate'

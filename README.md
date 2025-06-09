@@ -1,12 +1,11 @@
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/96226d2a-a4a7-42e6-80ee-b5de4f05fa69" alt="Xitomate logo" />
-</p>
+![Logo](https://github.com/marcgarmen/xitomate-2/assets/96226d2a-a4a7-42e6-80ee-b5de4f05fa69)
 
 # Xitomate
 
-This repository hosts the frontend and backend applications for the Xitomate demo.
+This repository contains the Xitomate application composed of a Next.js frontend and a Quarkus backend.
 
-## Subprojects
+- **app-xitomate** – frontend built with Next.js.
+- **backend-app-xitomate** – backend service built with Quarkus.
 
-- [app-xitomate](app-xitomate/README.md) – Next.js frontend
-- [backend-app-xitomate](backend-app-xitomate/README.md) – Quarkus backend
+See the README files in each directory for setup instructions.
+

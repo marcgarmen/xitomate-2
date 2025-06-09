@@ -7,7 +7,7 @@ COPY backend-app-xitomate/src ./src
 COPY backend-app-xitomate/.mvn ./.mvn
 COPY backend-app-xitomate/mvnw .
 RUN chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
+RUN MAVEN_CONFIG="" ./mvnw clean package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:21-jre

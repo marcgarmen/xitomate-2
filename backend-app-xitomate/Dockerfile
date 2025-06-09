@@ -6,7 +6,7 @@ COPY src ./src
 COPY .mvn ./.mvn
 COPY mvnw .
 RUN chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
+RUN MAVEN_CONFIG="" ./mvnw clean package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:21-jre

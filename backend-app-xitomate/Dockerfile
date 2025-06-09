@@ -5,8 +5,7 @@ COPY pom.xml .
 COPY src ./src
 COPY .mvn ./.mvn
 COPY mvnw .
-COPY mvnw.cmd .
-RUN mvn clean package -DskipTests
+RUN ./mvnw clean package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:21-jre

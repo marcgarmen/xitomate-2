@@ -8,5 +8,16 @@ steps:
     - '-f'
     - 'Dockerfile'
     - '.'
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+    - run
+    - deploy
+    - backend-app-xitomate
+    - --image=gcr.io/$PROJECT_ID/backend-app-xitomate
+    - --region=us-central1
+    - --platform=managed
+    - --quiet
+    - --allow-unauthenticated
 images:
 - 'gcr.io/$PROJECT_ID/backend-app-xitomate'

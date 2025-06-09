@@ -32,6 +32,9 @@ nb-configuration.xml
 *.swp
 *.swo
 
+# Ignore compiled class files
+*.class
+
 # patch
 *.orig
 *.rej
@@ -41,5 +44,8 @@ nb-configuration.xml
 
 # Plugin directory
 /.quarkus/cli/plugins/
+
 # TLS Certificates
 .certs/
+src/main/resources/firebase/
+MySQLConnectionTest.java

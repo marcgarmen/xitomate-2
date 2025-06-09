@@ -11,16 +11,18 @@ interface Props {
 }
 
 export function InventoryTable({ items, onEdit, onDelete }: Props) {
-  if (!items.length)
+  if (!items.length) {
     return (
       <p className="text-center text-lg text-gray-500 py-12">
         Aún no has registrado inventario.
       </p>
     );
+  }
+
+  const sortedItems = [...items].sort((a, b) => b.id - a.id);
 
   return (
-    <div className="mt-12">
-      <h2 className="text-2xl font-bold mb-4">Inventario</h2>
+    <div className="mt-2">
       <table className="w-full rounded-lg overflow-hidden text-left">
         <thead className="bg-[#9BB968] text-black">
           <tr>
@@ -32,7 +34,7 @@ export function InventoryTable({ items, onEdit, onDelete }: Props) {
           </tr>
         </thead>
         <tbody>
-          {items.map((i, idx) => (
+          {sortedItems.map((i, idx) => (
             <tr
               key={i.id}
               className={idx % 2 ? 'bg-[#EDF6E7]' : 'bg-[#F5FAF2]'}
@@ -40,7 +42,11 @@ export function InventoryTable({ items, onEdit, onDelete }: Props) {
               <td className="p-3">{i.name}</td>
               <td className="p-3">{i.stock}</td>
               <td className="p-3">{i.unit}</td>
-              <td className="p-3">{format(i.updatedAt, 'd/M/yyyy')}</td>
+              <td className="p-3">
+                {isNaN(i.updatedAt.getTime())
+                  ? '-'
+                  : format(i.updatedAt, 'd/M/yyyy')}
+              </td>
               <td className="p-3 flex gap-2">
                 <button onClick={() => onEdit(i)}>
                   <Pencil className="size-4" />

@@ -1,57 +1,136 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/Button/Button';
-import DishTable from '@/components/Platillos/DishTable';
-import AddDishModal from '@/components/Platillos/AddDishModal';
-import type { Dish } from '@/components/Platillos/types';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/Button/Button";
+import { DishTable, AddDishModal } from "@/components/Platillos";
+import type { Dish } from "@/components/Platillos/types";
+import type { DishResponse, IngredientResponse } from "@/service/dish";
+import ProtectedRestaurant from "@/components/ProtectedRestaurant";
+import {
+  fetchDishes,
+  createDishRequest,
+  updateDishRequest,
+  deleteDishRequest,
+} from "@/service/dish";
 
 export default function PlatillosPage() {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [editingDish, setEditingDish] = useState<Dish | null>(null);
 
-  const handleSave = (dish: Dish) => {
-    if (editingIdx !== null) {
-      setDishes((prev) => prev.map((d, i) => (i === editingIdx ? dish : d)));
-    } else {
-      setDishes((prev) => [...prev, dish]);
+  useEffect(() => {
+    loadDishes();
+  }, []);
+
+  async function loadDishes() {
+    try {
+      const listResp: DishResponse[] | null = await fetchDishes();
+      if (!listResp) {
+        setDishes([]);
+        return;
+      }
+
+      const mapped: Dish[] = listResp.map((r: DishResponse) => ({
+        id: r.id,
+        nombre: r.nombre,
+        precio: r.precio,
+        categoria: r.categoria,
+        ingredientes: (r.ingredientes ?? []).map(
+          (i: IngredientResponse) => ({
+            supplierProductId: i.supplierProductId,
+            nombreLibre: i.nombreLibre,
+            cantidad: i.cantidad,
+            unidad:
+              i.unidad === "kg" || i.unidad === "piezas" || i.unidad === "otro"
+                ? i.unidad
+                : "otro",
+          })
+        ),
+      }));
+
+      mapped.sort((a, b) => b.id - a.id);
+
+      setDishes(mapped);
+    } catch (e) {
+      console.error("Error al cargar platillos:", e);
+      setDishes([]);
     }
-    setModalOpen(false);
-    setEditingIdx(null);
-  };
+  }
 
-  const handleEdit = (idx: number) => {
-    setEditingIdx(idx);
+  async function handleSave(dish: Dish) {
+    try {
+      const payload = {
+        nombre: dish.nombre,
+        precio: dish.precio,
+        categoria: dish.categoria,
+        ingredientes: dish.ingredientes.map((ing) => ({
+          supplierProductId: ing.supplierProductId,
+          nombreLibre: ing.nombreLibre,
+          cantidad: ing.cantidad,
+          unidad: ing.unidad,
+        })),
+      };
+
+      if (dish.id) {
+        await updateDishRequest(dish.id, payload);
+      } else {
+        await createDishRequest(payload);
+      }
+
+      setModalOpen(false);
+      setEditingDish(null);
+      await loadDishes();
+    } catch (e) {
+      console.error("Falló guardar platillo:", e);
+    }
+  }
+
+  const handleEdit = (d: Dish) => {
+    setEditingDish(d);
     setModalOpen(true);
   };
 
-  const handleDelete = (idx: number) =>
-    setDishes((prev) => prev.filter((_, i) => i !== idx));
+  async function handleDelete(id: number) {
+    try {
+      await deleteDishRequest(id);
+      await loadDishes();
+    } catch (e) {
+      console.error("Falló eliminar platillo:", e);
+    }
+  }
 
   return (
-    <main className="bg-[#FAF5F0] min-h-screen">
-      <div className="container mx-auto max-w-5xl py-10">
-        <div className="flex gap-4 mb-8">
-          <Button variant="SignupGreen" onClick={() => setModalOpen(true)}>
-            Nuevo platillo
-          </Button>
+    <ProtectedRestaurant>
+      <main className="bg-[#FAF5F0] min-h-screen">
+        <div className="container mx-auto max-w-5xl py-10">
+          <h1 className="text-3xl font-bold mb-2">Registra tus platillos</h1>
+          <p className="text-gray-700 mb-6">
+            Agrega, edita o elimina los platillos de tu restaurante.
+          </p>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Tus platillos</h2>
+            <Button variant="SignupGreen" onClick={() => setModalOpen(true)}>
+              Nuevo platillo
+            </Button>
+          </div>
+
+          <DishTable
+            dishes={dishes}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+
+          <AddDishModal
+            open={modalOpen}
+            onClose={() => {
+              setModalOpen(false);
+              setEditingDish(null);
+            }}
+            onSave={handleSave}
+            initialDish={editingDish ?? undefined}
+          />
         </div>
-
-        <h2 className="text-2xl font-bold mb-4">Tus platillos</h2>
-
-        <DishTable dishes={dishes} onEdit={handleEdit} onDelete={handleDelete} />
-
-        <AddDishModal
-          open={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            setEditingIdx(null);
-          }}
-          onSave={handleSave}
-          initialDish={editingIdx !== null ? dishes[editingIdx] : undefined}
-        />
-      </div>
-    </main>
+      </main>
+    </ProtectedRestaurant>
   );
 }

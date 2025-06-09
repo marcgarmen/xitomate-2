@@ -14,7 +14,9 @@ type Story = StoryObj<typeof SelectionCardSupplier>;
 export const Default: Story = {
   render: () => (
     <div className="min-h-screen flex items-center justify-center">
-      <SelectionCardSupplier />
+      <SelectionCardSupplier selected={false} onClick={function (): void {
+        throw new Error('Function not implemented.');
+      } } />
     </div>
   ),
 };

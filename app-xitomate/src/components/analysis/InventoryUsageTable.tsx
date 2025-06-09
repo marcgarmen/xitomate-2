@@ -1,58 +1,56 @@
+// src/components/analysis/InventoryUsageTable.tsx
 'use client';
-import Etiqueta from '@/components/Test-Rosa/Etiqueta';
+import { useEffect, useState } from 'react';
+import { getToken } from '@/service/auth';
 
 export default function InventoryUsageTable() {
-  const items = [
-    { name: 'Jitomate', stock: 10, forecast: 12 },
-    { name: 'Cebolla', stock: 8, forecast: 5 },
-  ];
+  const [forecast, setForecast] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/analysis/sales-forecast`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setForecast(data.forecast || []))
+      .catch(() => setError('No se pudo cargar el forecast de ventas'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div>Cargando predicción de ventas...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
+
+  if (!forecast.length) {
+    return <div>No hay forecast de ventas.</div>;
+  }
 
   return (
     <div className="mt-8">
-      <h2 className="text-2xl font-bold mb-4">
-        Inventario actual vs uso estimado
-      </h2>
+      <h2 className="text-2xl font-bold mb-4">Predicción de ventas (próximos 7 días)</h2>
       <table className="w-full rounded-lg overflow-hidden text-left">
         <thead className="bg-[#9BB968] text-black">
           <tr>
-            <th className="p-3">Insumo</th>
-            <th className="p-3">En inventario</th>
-            <th className="p-3">Se estima usar</th>
-            <th className="p-3">Diferencia</th>
-            <th className="p-3">Estado</th>
+            <th className="p-3">Fecha</th>
+            <th className="p-3">Ventas estimadas</th>
           </tr>
         </thead>
         <tbody>
-          {items.map((it, idx) => {
-            const diff = it.stock - it.forecast;
-            const state = diff < 0 ? 'Faltante' : 'Sobrante';
-            const color = diff < 0 ? 'error' : 'success';
-            return (
-              <tr
-                key={it.name}
-                className={idx % 2 ? 'bg-[#EDF6E7]' : 'bg-[#F5FAF2]'}
-              >
-                <td className="p-3">{it.name}</td>
-                <td className="p-3">{it.stock} kg</td>
-                <td className="p-3">{it.forecast} kg</td>
-                <td className="p-3">{diff > 0 ? '+' : ''}{diff} kg</td>
-                <td className="p-3">
-                  <Etiqueta text={state} color={color} />
-                </td>
-              </tr>
-            );
-          })}
+          {forecast.map((f, idx) => (
+            <tr key={f.ds + '-' + idx} className={idx % 2 ? 'bg-[#EDF6E7]' : 'bg-[#F5FAF2]'}>
+              <td className="p-3">{f.ds.slice(0, 10)}</td>
+              <td className="p-3">${f.yhat.toFixed(2)}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
-
-      <div className="mt-2">
-        <a
-          href="#"
-          className="text-sm text-green-800 underline underline-offset-2"
-        >
-          Ver recomendación de compra
-        </a>
-      </div>
     </div>
   );
 }

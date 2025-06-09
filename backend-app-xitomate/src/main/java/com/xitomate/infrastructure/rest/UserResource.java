@@ -2,6 +2,8 @@ package com.xitomate.infrastructure.rest;
 
 import com.xitomate.domain.entity.User;
 import com.xitomate.domain.enums.UserRole;
+import com.xitomate.service.PasswordService;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -15,8 +17,11 @@ import java.util.Map;
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserResource {
 
-    @jakarta.inject.Inject
+    @Inject
     EntityManager entityManager;
+
+    @Inject
+    PasswordService passwordService;
 
     @POST
     @Path("/register")
@@ -41,7 +46,6 @@ public class UserResource {
             }
 
             entityManager.persist(user);
-            entityManager.flush(); // Force flush to ensure the insert happens
             return Response.ok(user).build();
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -57,52 +61,37 @@ public class UserResource {
     @Transactional
     public Response createTestData() {
         try {
-            // Check if test users already exist
-            User existingSupplier = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.email = :email", User.class)
-                .setParameter("email", "supplier@test.com")
-                .getResultList()
-                .stream()
-                .findFirst()
-                .orElse(null);
-
-            User existingRestaurant = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.email = :email", User.class)
-                .setParameter("email", "restaurant@test.com")
-                .getResultList()
-                .stream()
-                .findFirst()
-                .orElse(null);
-
             Map<String, Object> response = new HashMap<>();
             
-            if (existingSupplier == null) {
-                // Create a test supplier
-                User supplier = new User();
-                supplier.email = "supplier@test.com";
-                supplier.password = "password123";
-                supplier.role = UserRole.SUPPLIER;
-                supplier.nombre = "Test Supplier";
-                supplier.ubicacion = "Test Location";
+            // Create a test supplier
+            User supplier = new User();
+            supplier.email = "supplier@test.com";
+            supplier.passwordSalt = passwordService.generateSalt();
+            supplier.passwordHash = passwordService.hashPassword("password123", supplier.passwordSalt);
+            supplier.role = UserRole.SUPPLIER;
+            supplier.nombre = "Test Supplier";
+            supplier.ubicacion = "Test Location";
+            
+            try {
                 entityManager.persist(supplier);
-                entityManager.flush(); // Force flush to ensure the insert happens
                 response.put("supplier", "created");
-            } else {
+            } catch (Exception e) {
                 response.put("supplier", "already exists");
             }
 
-            if (existingRestaurant == null) {
-                // Create a test restaurant
-                User restaurant = new User();
-                restaurant.email = "restaurant@test.com";
-                restaurant.password = "password123";
-                restaurant.role = UserRole.RESTAURANT;
-                restaurant.nombre = "Test Restaurant";
-                restaurant.ubicacion = "Test Location";
+            // Create a test restaurant
+            User restaurant = new User();
+            restaurant.email = "restaurant@test.com";
+            restaurant.passwordSalt = passwordService.generateSalt();
+            restaurant.passwordHash = passwordService.hashPassword("password123", restaurant.passwordSalt);
+            restaurant.role = UserRole.RESTAURANT;
+            restaurant.nombre = "Test Restaurant";
+            restaurant.ubicacion = "Test Location";
+            
+            try {
                 entityManager.persist(restaurant);
-                entityManager.flush(); // Force flush to ensure the insert happens
                 response.put("restaurant", "created");
-            } else {
+            } catch (Exception e) {
                 response.put("restaurant", "already exists");
             }
 

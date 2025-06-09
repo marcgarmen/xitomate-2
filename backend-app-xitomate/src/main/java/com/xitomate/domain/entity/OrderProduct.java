@@ -14,5 +14,7 @@ public class OrderProduct {
     public SupplierProduct supplierProduct;
 
     public Integer cantidad;
+
+    @Column(name = "precio_unitario")
     public BigDecimal precioUnitario;
 }

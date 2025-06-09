@@ -1,6 +1,11 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  dir: '.'
-  args: ['build', '-t', 'gcr.io/inlaid-fire-458421-e0/backend-app-xitomate', '.']
+  args:
+    - 'build'
+    - '-t'
+    - 'gcr.io/$PROJECT_ID/backend-app-xitomate'
+    - '-f'
+    - 'Dockerfile'
+    - '.'
 images:
-- 'gcr.io/inlaid-fire-458421-e0/backend-app-xitomate' 
+- 'gcr.io/$PROJECT_ID/backend-app-xitomate'

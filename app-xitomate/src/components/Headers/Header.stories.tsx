@@ -1,47 +1,54 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import Header from "./Header";
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
+import Header from './Header';
+import type { HeaderProps } from './Header.types';
+import { AuthContext, AuthCtx } from '@/context/AuthContext';
 
-const meta: Meta<typeof Header> = {
-  title: "Components/Header",
+// @ts-ignore
+import { AppRouterContext } from 'next/dist/client/components/app-router-context';
+
+const mockRouter = {
+  pathname: '/',
+  push: async () => {},
+  replace: async () => {},
+  prefetch: async () => {},
+  back: () => {},
+  forward: () => {},
+  refresh: () => {},
+  events: { on: () => {}, off: () => {}, emit: () => {} },
+};
+
+const authMock: AuthCtx = {
+  role: 'noAuth',
+  ready: true,
+  login: () => {},
+  logout: () => {},
+};
+
+const meta: Meta<HeaderProps> = {
+  title: 'Components/Header',
   component: Header,
-  tags: ["autodocs"],
-  args: {
-    type: "noAuth",
-  },
-  parameters: {
-    layout: "fullscreen",
-  },
+  decorators: [
+    (Story) => (
+      <AppRouterContext.Provider value={mockRouter as any}>
+        <AuthContext.Provider value={authMock}>
+          <Story />
+        </AuthContext.Provider>
+      </AppRouterContext.Provider>
+    ),
+  ],
   argTypes: {
     type: {
-      control: "select",
-      options: ["noAuth", "restaurante", "proveedor", "admin"],
+      control: { type: 'radio' },
+      options: ['noAuth', 'restaurante', 'proveedor', 'admin'] as const,
     },
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof Header>;
+type Story = StoryObj<HeaderProps>;
 
-export const NoAutenticado: Story = {
-  args: {
-    type: "noAuth",
-  },
-};
-
-export const Restaurante: Story = {
-  args: {
-    type: "restaurante",
-  },
-};
-
-export const Proveedor: Story = {
-  args: {
-    type: "proveedor",
-  },
-};
-
-export const Admin: Story = {
-  args: {
-    type: "admin",
-  },
-};
+export const NoAuth: Story = { args: { type: 'noAuth' } };
+export const Restaurante: Story = { args: { type: 'restaurante' } };
+export const Proveedor: Story = { args: { type: 'proveedor' } };
+export const Admin: Story = { args: { type: 'admin' } };

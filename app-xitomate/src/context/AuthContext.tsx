@@ -9,14 +9,14 @@ import {
 
 export type Role = "noAuth" | "restaurante" | "proveedor";
 
-interface AuthCtx {
+export interface AuthCtx {
   role: Role;
   ready: boolean;
   login: (token: string, rawRole: string) => void;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthCtx>({
+export const AuthContext = createContext<AuthCtx>({
   role: "noAuth",
   ready: false,
   login: () => {},

@@ -30,7 +30,7 @@ export default function InfoPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-white flex flex-col items-center px-6 py-12">
+    <main className="min-h-screen bg-[#F2F2F2] flex flex-col items-center px-6 py-12">
 
       <div className="text-center max-w-3xl mb-16">
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">

@@ -1,20 +1,13 @@
-# Etapa 1: Build (usando Maven)
+# Build stage
 FROM maven:3.9.6-eclipse-temurin-21 AS build
-WORKDIR /workspace/app
-
-# Copia los archivos de Maven y descarga dependencias
+WORKDIR /workspace
 COPY pom.xml .
 COPY src ./src
-RUN mvn -B package -DskipTests
+RUN mvn clean package -DskipTests
 
-# Etapa 2: Imagen final para Quarkus JVM
+# Run stage
 FROM eclipse-temurin:21-jre
-WORKDIR /work
-
-# Copia el JAR generado desde la etapa de build
-COPY --from=build /workspace/app/target/*-runner.jar /work/application.jar
-
-EXPOSE 8081
-
-# Comando para correr la app
-CMD ["java", "-jar", "/work/application.jar"]
+WORKDIR /app
+COPY --from=build /workspace/target/*-runner.jar /app/application.jar
+EXPOSE 8080
+CMD ["java", "-jar", "/app/application.jar"]

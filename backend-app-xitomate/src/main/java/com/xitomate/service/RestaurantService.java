@@ -76,7 +76,7 @@ public class RestaurantService {
             .orElse(null);
 
         if (user == null || !passwordService.verifyPassword(userDTO.getPassword(), user.passwordSalt, user.passwordHash)) {
-            throw new RuntimeException("Invalid credentials");
+        throw new RuntimeException("Invalid credentials");
         }
 
         return generateToken(user);
@@ -711,10 +711,10 @@ public class RestaurantService {
         
         for (int i = 0; i <= 6; i++) {
             LocalDate date = startDate.plusDays(i);
-            BigDecimal total = saleRepository.find("restaurant", restaurant).list().stream()
+        BigDecimal total = saleRepository.find("restaurant", restaurant).list().stream()
                 .filter(sale -> sale.fecha.toLocalDate().equals(date))
-                .map(sale -> sale.total)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            .map(sale -> sale.total)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             Map<String, Object> dailyIncome = new HashMap<>();
             dailyIncome.put("date", date);
@@ -787,9 +787,9 @@ public class RestaurantService {
                 .collect(Collectors.toList());
             // FILTRO: solo ingredientes con al menos 3 días y cantidades variables
             if (quantities.size() >= 3 && quantities.stream().distinct().count() > 1) {
-                obj.put("dates", dates);
-                obj.put("quantities", quantities);
-                result.add(obj);
+            obj.put("dates", dates);
+            obj.put("quantities", quantities);
+            result.add(obj);
             }
         }
         return result;

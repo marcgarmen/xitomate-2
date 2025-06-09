@@ -9,3 +9,5 @@ This repository contains the Xitomate application composed of a Next.js frontend
 
 See the README files in each directory for setup instructions.
 
+
+To build the backend using Google Cloud Build, a Dockerfile is provided at the repository root. The build context only includes the backend application.

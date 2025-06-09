@@ -14,7 +14,7 @@ WORKDIR /work
 # Copia el JAR generado desde la etapa de build
 COPY --from=build /workspace/app/target/*-runner.jar /work/application.jar
 
-EXPOSE 8080
+EXPOSE 8081
 
 # Comando para correr la app
 CMD ["java", "-jar", "/work/application.jar"]

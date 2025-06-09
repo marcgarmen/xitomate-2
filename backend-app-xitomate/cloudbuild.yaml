@@ -1,5 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
+
   args:
     - 'build'
     - '-t'
@@ -7,5 +8,8 @@ steps:
     - '-f'
     - 'Dockerfile'
     - '.'
+
+
+
 images:
 - 'gcr.io/$PROJECT_ID/backend-app-xitomate'

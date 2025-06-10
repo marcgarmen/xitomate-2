@@ -27,6 +27,14 @@ public class AuthResource {
     @Path("/login")
     public Response login(@QueryParam("email") String email, @QueryParam("password") String password) {
         try {
+            if (email == null || password == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Email and password are required");
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(error)
+                        .build();
+            }
+
             User user = entityManager.createQuery(
                 "SELECT u FROM User u WHERE u.email = :email", User.class)
                 .setParameter("email", email)
@@ -55,5 +63,11 @@ public class AuthResource {
                     .entity(error)
                     .build();
         }
+    }
+
+    @OPTIONS
+    @Path("/login")
+    public Response loginOptions() {
+        return Response.ok().build();
     }
 } 

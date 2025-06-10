@@ -48,7 +48,6 @@
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
     
-    
     <!-- Dependency for Jakarta EE Annotations -->
 
         <dependency>

@@ -12,6 +12,6 @@ RUN MAVEN_CONFIG="" ./mvnw clean package -DskipTests
 # Run stage
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /build/target/quarkus-app/quarkus-run.jar /app/application.jar
+COPY --from=build /build/target/quarkus-app /app/quarkus-app
 EXPOSE 8080
-CMD ["java", "-jar", "/app/application.jar"]
+CMD ["java", "-jar", "/app/quarkus-app/quarkus-run.jar"]

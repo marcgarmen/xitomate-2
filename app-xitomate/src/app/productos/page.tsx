@@ -74,7 +74,7 @@ export default function ProductosPage() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Productos</h1>
         <Button onClick={() => setEditingProduct({} as Product)}>Nuevo Producto</Button>
-        
+
         <div className="mt-4">
           {products.map((product) => (
             <div key={product.id} className="border p-4 mb-2">
@@ -83,7 +83,7 @@ export default function ProductosPage() {
               <p>Stock: {product.stock} {product.unidad}</p>
               <Button onClick={() => setEditingProduct(product)}>Editar</Button>
               <Button onClick={() => handleDelete(product.id)}>Eliminar</Button>
-            </div>
+          </div>
           ))}
         </div>
       </div>

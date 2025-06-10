@@ -5,11 +5,7 @@ import ProtectedRestaurant from "@/components/ProtectedRestaurant";
 
 export const metadata = { title: "Catálogo del proveedor | Xitomate" };
 
-export default function SupplierProductsPage({
-  params,
-}: {
-  params: { supplierId: string };
-}) {
+export default function Page({ params }: { params: { supplierId: string } }) {
   const id = Number(params.supplierId);
 
   return (

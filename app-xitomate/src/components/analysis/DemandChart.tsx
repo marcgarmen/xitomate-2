@@ -6,6 +6,10 @@ interface Props {
 }
 
 export default function DemandChart({ filter, onChange }: Props) {
+  const handleFilterChange = (value: string) => {
+    onChange(value);
+  };
+
   return (
     <section>
       <div className="flex justify-between items-center mb-4">
@@ -13,21 +17,21 @@ export default function DemandChart({ filter, onChange }: Props) {
         <div className="flex gap-2">
           <Button
             variant="OutlineGreen"
-            onClick={() => onChange('week')}
+            onClick={() => handleFilterChange('daily')}
           >
-            Esta semana
+            Diario
           </Button>
           <Button
             variant="OutlineGreen"
-            onClick={() => onChange('next')}
+            onClick={() => handleFilterChange('weekly')}
           >
-            Siguiente semana
+            Semanal
           </Button>
           <Button
             variant="OutlineGreen"
-            onClick={() => onChange('month')}
+            onClick={() => handleFilterChange('monthly')}
           >
-            Último mes
+            Mensual
           </Button>
         </div>
       </div>

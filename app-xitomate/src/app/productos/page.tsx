@@ -1,110 +1,92 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import ProtectedSupplier from '@/components/ProtectedSupplier'
 import { Button } from '@/components/Button/Button'
-import AddProductModal from '@/components/Productos/AddProductModal'
-import ProductGrid from '@/components/Productos/ProductGrid'
-import type { Product } from '@/components/Productos/types'
-import {
-  fetchProducts,
-  createProductRequest,
-  updateProductRequest,
-  deleteProductRequest,
-} from '@/service/product'
+import { Product, ProductFormData } from '@/components/Productos/types'
 import { useToast } from '@/components/toast/ToastProvider'
 
 export default function ProductosPage() {
   const [products, setProducts] = useState<Product[]>([])
-  const [modalOpen, setModalOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const toast = useToast()
 
+  const loadProducts = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`)
+      if (!response.ok) throw new Error('Error al cargar productos')
+      const data = await response.json()
+      setProducts(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido')
+      toast('error', 'No se pudieron cargar los productos.')
+    } finally {
+      setLoading(false)
+    }
+  }, [toast])
+
   useEffect(() => {
     loadProducts()
-  }, [])
+  }, [loadProducts])
 
-  async function loadProducts() {
+  async function handleSave(product: ProductFormData) {
     try {
-      const list = await fetchProducts()
-      setProducts(list.sort((a, b) => b.id - a.id))
-    } catch (e: any) {
-      console.error('Error cargando productos:', e)
-      toast('error', e.message ?? 'No se pudieron cargar los productos.')
-      setProducts([])
-    }
-  }
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      })
 
-  async function handleSave(product: Product) {
-    const payload = {
-      name: product.name,
-      price: product.price,
-      unit: product.unit,
-      stock: product.stock,
-    }
-    try {
-      if (product.id) {
-        await updateProductRequest(product.id, payload)
-        toast('success', 'Producto actualizado correctamente.')
-      } else {
-        await createProductRequest(payload)
-        toast('success', 'Producto creado correctamente.')
-      }
-      setModalOpen(false)
-      setEditingProduct(null)
+      if (!response.ok) throw new Error('Error al guardar el producto')
+      
       await loadProducts()
-    } catch (e: any) {
-      console.error('Error guardando producto:', e)
-      toast('error', e.message ?? 'No se pudo guardar el producto.')
+      toast('success', 'Producto guardado exitosamente')
+    } catch (err) {
+      toast('error', err instanceof Error ? err.message : 'Error al guardar el producto')
     }
   }
 
   async function handleDelete(id: number) {
     try {
-      await deleteProductRequest(id)
-      setProducts(prev => prev.filter(p => p.id !== id))
-      toast('success', 'Producto eliminado correctamente.')
-    } catch (e: any) {
-      console.error('Error borrando producto:', e)
-      toast('error', e.message ?? 'No se pudo borrar el producto.')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Error al eliminar el producto')
+      
+      await loadProducts()
+      toast('success', 'Producto eliminado exitosamente')
+    } catch (err) {
+      toast('error', err instanceof Error ? err.message : 'Error al eliminar el producto')
     }
   }
 
-  function handleEdit(p: Product) {
-    setEditingProduct(p)
-    setModalOpen(true)
-  }
+  if (loading) return <div>Cargando...</div>
+  if (error) return <div>Error: {error}</div>
 
   return (
     <ProtectedSupplier>
-      <main className="bg-[#FAF5F0] min-h-screen">
-        <div className="container mx-auto max-w-5xl py-10">
-          <h1 className="text-3xl font-bold mb-2">Gestionar Productos</h1>
-
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Tus productos</h2>
-            <Button variant="SignupGreen" onClick={() => setModalOpen(true)}>
-              Nuevo producto
-            </Button>
-          </div>
-
-          <ProductGrid
-            products={products}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-
-          <AddProductModal
-            open={modalOpen}
-            onClose={() => {
-              setModalOpen(false)
-              setEditingProduct(null)
-            }}
-            onSave={handleSave}
-            initialProduct={editingProduct ?? undefined}
-          />
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Productos</h1>
+        <Button onClick={() => setEditingProduct({} as Product)}>Nuevo Producto</Button>
+        
+        <div className="mt-4">
+          {products.map((product) => (
+            <div key={product.id} className="border p-4 mb-2">
+              <h3>{product.nombre}</h3>
+              <p>Precio: ${product.precio}</p>
+              <p>Stock: {product.stock} {product.unidad}</p>
+              <Button onClick={() => setEditingProduct(product)}>Editar</Button>
+              <Button onClick={() => handleDelete(product.id)}>Eliminar</Button>
+            </div>
+          ))}
         </div>
-      </main>
+      </div>
     </ProtectedSupplier>
   )
 }

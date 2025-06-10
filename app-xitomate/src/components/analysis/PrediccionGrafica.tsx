@@ -29,11 +29,14 @@ export default function PrediccionGrafica() {
   useEffect(() => {
     const fetchForecast = async () => {
       try {
-        const response = await fetch('/restaurant/analysis/sales-forecast', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/restaurant/analysis/sales-forecast`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
           }
-        });
+        );
         const data = await response.json();
         if (data.error) {
           setError(data.error);

@@ -1,7 +1,14 @@
 export interface Product {
   id: number;
-  name: string;
-  price: number;
-  unit: "kg" | "piezas" | "otro";
+  nombre: string;
+  precio: number;
   stock: number;
+  unidad: string;
+}
+
+export interface ProductFormData {
+  nombre: string;
+  precio: number;
+  stock: number;
+  unidad: string;
 }

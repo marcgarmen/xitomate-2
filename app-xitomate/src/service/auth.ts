@@ -22,14 +22,33 @@ export async function registerUser(data: {
   return res.json();
 }
 
-export async function loginUser(email: string, password: string) {
-  const url =
-    `${process.env.NEXT_PUBLIC_API_URL}/auth/login` +
-    `?email=${encodeURIComponent(email)}` +
-    `&password=${encodeURIComponent(password)}`;
-  const res = await fetch(url, { method: 'POST' });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json(); // → { token, role, email, userId }
+export interface LoginResponse {
+  token: string;
+  role: string;
+  userId: number;
+}
+
+export interface ErrorResponse {
+  error: string;
+}
+
+export async function loginUser(email: string, password: string): Promise<LoginResponse> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const error: ErrorResponse = await response.json();
+    throw new Error(error.error || 'Error al iniciar sesión');
+  }
+
+  return response.json();
 }
 
 //--------------------------------------------------
@@ -174,7 +193,6 @@ export async function searchSupplierProducts(
 // 6.  Ventas
 //--------------------------------------------------
 
-
 export interface CreateSaleRequest {
   metodoPago: string;
   items: {
@@ -183,10 +201,18 @@ export interface CreateSaleRequest {
   }[];
 }
 
+export interface CreateSaleResponse {
+  id: number;
+  metodoPago: string;
+  items: Array<{
+    dishId: number;
+    cantidad: number;
+  }>;
+  fecha: string;
+  total: number;
+}
 
-export async function createSale(
-  data: CreateSaleRequest
-): Promise<any> {
+export async function createSale(data: CreateSaleRequest): Promise<CreateSaleResponse> {
   const token = getToken();
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/restaurant/sales`,
@@ -206,7 +232,6 @@ export async function createSale(
   }
   return res.json();
 }
-
 
 export async function fetchSales(): Promise<
   Array<{

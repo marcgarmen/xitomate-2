@@ -45,6 +45,10 @@ public class UserResource {
                         .build();
             }
 
+            // Generate salt and hash password
+            user.passwordSalt = passwordService.generateSalt();
+            user.passwordHash = passwordService.hashPassword(user.password, user.passwordSalt);
+
             entityManager.persist(user);
             return Response.ok(user).build();
         } catch (Exception e) {

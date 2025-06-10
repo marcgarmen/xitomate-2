@@ -1,18 +1,22 @@
 package com.xitomate.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.enterprise.context.ApplicationScoped;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Map;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class PythonForecastClient {
 
-    private static final String PROPHET_URL = "http://localhost:8000/forecast";
+    @ConfigProperty(name = "prophet.url", defaultValue = "http://localhost:8000/forecast")
+    String prophetUrl;
     private static final ObjectMapper mapper = new ObjectMapper();
 
     public String getForecast(List<?> history) {
@@ -20,7 +24,7 @@ public class PythonForecastClient {
             HttpClient client = HttpClient.newHttpClient();
             String body = mapper.writeValueAsString(new ForecastRequest(history));
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(PROPHET_URL))
+                .uri(URI.create(prophetUrl))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();

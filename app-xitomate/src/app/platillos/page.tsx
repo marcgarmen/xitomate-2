@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/Button/Button";
 import { DishTable, AddDishModal } from "@/components/Platillos";
 import type { Dish } from "@/components/Platillos/types";
-import type { DishResponse, IngredientResponse } from "@/service/dish";
 import ProtectedRestaurant from "@/components/ProtectedRestaurant";
 import {
   fetchDishes,
@@ -12,8 +11,10 @@ import {
   updateDishRequest,
   deleteDishRequest,
 } from "@/service/dish";
+import { useToast } from "@/components/toast/ToastProvider";
 
 export default function PlatillosPage() {
+  const toast = useToast();
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
@@ -24,33 +25,28 @@ export default function PlatillosPage() {
 
   async function loadDishes() {
     try {
-      const listResp: DishResponse[] | null = await fetchDishes();
+      const listResp = await fetchDishes();
       if (!listResp) {
         setDishes([]);
         return;
       }
-
-      const mapped: Dish[] = listResp.map((r: DishResponse) => ({
+      const mapped = listResp.map((r) => ({
         id: r.id,
         nombre: r.nombre,
         precio: r.precio,
         categoria: r.categoria,
-        ingredientes: (r.ingredientes ?? []).map(
-          (i: IngredientResponse) => ({
-            supplierProductId: i.supplierProductId,
-            nombreLibre: i.nombreLibre,
-            cantidad: i.cantidad,
-            unidad:
-              i.unidad === "kg" || i.unidad === "piezas" || i.unidad === "otro"
-                ? i.unidad
-                : "otro",
-          })
-        ),
+        ingredientes: (r.ingredientes ?? []).map((i) => ({
+          supplierProductId: i.supplierProductId,
+          nombreLibre: i.nombreLibre,
+          cantidad: i.cantidad,
+          unidad:
+            i.unidad === "kg" || i.unidad === "piezas" || i.unidad === "otro"
+              ? i.unidad
+              : "otro",
+        })),
       }));
-
       mapped.sort((a, b) => b.id - a.id);
-
-      setDishes(mapped);
+      setDishes(mapped as Dish[]);
     } catch (e) {
       console.error("Error al cargar platillos:", e);
       setDishes([]);
@@ -70,25 +66,26 @@ export default function PlatillosPage() {
           unidad: ing.unidad,
         })),
       };
-
       if (dish.id) {
         await updateDishRequest(dish.id, payload);
+        toast("success", "Platillo actualizado correctamente");
       } else {
         await createDishRequest(payload);
+        toast("success", "Platillo agregado correctamente");
       }
-
       setModalOpen(false);
       setEditingDish(null);
       await loadDishes();
     } catch (e) {
       console.error("Falló guardar platillo:", e);
+      toast("error", "Error al guardar el platillo, inténtalo de nuevo");
     }
   }
 
-  const handleEdit = (d: Dish) => {
+  function handleEdit(d: Dish) {
     setEditingDish(d);
     setModalOpen(true);
-  };
+  }
 
   async function handleDelete(id: number) {
     try {
@@ -96,6 +93,7 @@ export default function PlatillosPage() {
       await loadDishes();
     } catch (e) {
       console.error("Falló eliminar platillo:", e);
+      toast("error", "Error al eliminar el platillo");
     }
   }
 
@@ -113,13 +111,7 @@ export default function PlatillosPage() {
               Nuevo platillo
             </Button>
           </div>
-
-          <DishTable
-            dishes={dishes}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-
+          <DishTable dishes={dishes} onEdit={handleEdit} onDelete={handleDelete} />
           <AddDishModal
             open={modalOpen}
             onClose={() => {

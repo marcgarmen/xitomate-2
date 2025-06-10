@@ -94,7 +94,7 @@ public class FirebaseAuthFilter implements ContainerRequestFilter {
                     }
                 }
             }
-            // AGREGADO: Verificar el rol para rutas de restaurante
+
             if (path.startsWith("/restaurant/")) {
                 if (!user.role.name().equals("RESTAURANT")) {
                     throw new RuntimeException("User is not a restaurant");

@@ -9,10 +9,8 @@ public class DishIngredientDTO {
     private String unidad;
     private String nombreLibre;
 
-    // Constructor
     public DishIngredientDTO() {}
 
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

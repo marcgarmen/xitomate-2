@@ -95,12 +95,10 @@ public class RestaurantService {
                 throw new RuntimeException("Restaurant not found");
             }
 
-            // Validar que el plato tenga ingredientes
             if (dishDTO.getIngredientes() == null || dishDTO.getIngredientes().isEmpty()) {
                 throw new RuntimeException("El plato debe tener al menos un ingrediente");
             }
 
-            // Crear el plato
             Dish dish = new Dish();
             dish.nombre = dishDTO.getNombre();
             dish.precio = dishDTO.getPrecio();
@@ -147,7 +145,6 @@ public class RestaurantService {
             entityManager.persist(dish);
             entityManager.flush();
 
-            // --- NUEVO: Agregar ingredientes al inventario si no existen ---
             for (DishIngredient di : dish.ingredientes) {
                 RestaurantInventory inv = null;
                 if (di.supplierProduct != null) {
@@ -180,7 +177,6 @@ public class RestaurantService {
                     }
                 }
             }
-            // --- FIN NUEVO ---
 
             return dishDTO;
         } catch (Exception e) {
@@ -258,7 +254,6 @@ public class RestaurantService {
 
         saleRepository.persist(sale);
         
-        // Set the ID in the DTO before returning
         saleDTO.setId(sale.id);
         saleDTO.setFecha(sale.fecha);
         saleDTO.setTotal(sale.total);
@@ -363,13 +358,10 @@ public class RestaurantService {
             throw new RuntimeException("Sale not found or unauthorized");
         }
 
-        // Update payment method
         sale.metodoPago = saleDTO.getMetodoPago();
 
-        // Clear existing items
         sale.items.clear();
 
-        // Add new items
         BigDecimal total = BigDecimal.ZERO;
         for (SaleItemDTO itemDTO : saleDTO.getItems()) {
             Dish dish = entityManager.find(Dish.class, itemDTO.getDishId());
@@ -387,14 +379,11 @@ public class RestaurantService {
             sale.items.add(item);
         }
 
-        // Update total
         sale.total = total;
 
-        // Merge the updated sale
         sale = entityManager.merge(sale);
         entityManager.flush();
 
-        // Create response DTO
         SaleDTO responseDTO = new SaleDTO();
         responseDTO.setId(sale.id);
         responseDTO.setMetodoPago(sale.metodoPago);
@@ -637,7 +626,6 @@ public class RestaurantService {
         entityManager.remove(dish);
     }
 
-    // --- Métodos de análisis para RestaurantAnalysisController ---
     public List<DishSalesDTO> getTopDishesForAnalysis(String userId) {
         User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) throw new RuntimeException("Restaurant not found");
@@ -703,7 +691,6 @@ public class RestaurantService {
         User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) throw new RuntimeException("Restaurant not found");
 
-        // Get sales for the last 7 days
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(6);
 
@@ -925,11 +912,9 @@ public class RestaurantService {
     }
 
     private String generateToken(User user) {
-        // En producción, implementar generación de JWT real
         return "JWT_TOKEN_" + user.id;
     }
 
-    // --- Métodos para CRUD de inventario ---
     public RestaurantInventory getInventoryById(Long inventoryId, long restaurantId) {
         RestaurantInventory inv = entityManager.find(RestaurantInventory.class, inventoryId);
         if (inv == null || inv.restaurant == null || !inv.restaurant.id.equals(restaurantId)) {
@@ -957,14 +942,12 @@ public class RestaurantService {
         User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) throw new RuntimeException("Restaurant not found");
 
-        // Agrupa ventas por fecha (YYYY-MM-DD) y suma el total
         Map<LocalDate, Double> salesByDate = new HashMap<>();
         saleRepository.find("restaurant", restaurant).list().forEach(sale -> {
             LocalDate date = sale.fecha.toLocalDate();
             salesByDate.put(date, salesByDate.getOrDefault(date, 0.0) + (sale.total != null ? sale.total.doubleValue() : 0.0));
         });
 
-        // Ordena por fecha ascendente
         List<LocalDate> sortedDates = new ArrayList<>(salesByDate.keySet());
         Collections.sort(sortedDates);
 
@@ -982,7 +965,6 @@ public class RestaurantService {
         User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) throw new RuntimeException("Restaurant not found");
 
-        // Map<dishName, Map<date, cantidad>>
         Map<String, Map<LocalDate, Integer>> dishSales = new HashMap<>();
         saleRepository.find("restaurant", restaurant).list().forEach(sale -> {
             LocalDate date = sale.fecha.toLocalDate();

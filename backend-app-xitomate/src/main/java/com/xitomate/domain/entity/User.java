@@ -31,6 +31,6 @@ public class User {
     public String nombre;
     public String ubicacion;
 
-    @Transient // This field is not persisted to the database
+    @Transient
     public String password;
 }

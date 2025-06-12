@@ -28,7 +28,6 @@ public class UserResource {
     @Transactional
     public Response registerUser(User user) {
         try {
-            // Check if user already exists
             User existingUser = entityManager.createQuery(
                 "SELECT u FROM User u WHERE u.email = :email", User.class)
                 .setParameter("email", user.email)
@@ -45,7 +44,6 @@ public class UserResource {
                         .build();
             }
 
-            // Generate salt and hash password
             user.passwordSalt = passwordService.generateSalt();
             user.passwordHash = passwordService.hashPassword(user.password, user.passwordSalt);
 
@@ -67,7 +65,6 @@ public class UserResource {
         try {
             Map<String, Object> response = new HashMap<>();
             
-            // Create a test supplier
             User supplier = new User();
             supplier.email = "supplier@test.com";
             supplier.passwordSalt = passwordService.generateSalt();
@@ -83,7 +80,6 @@ public class UserResource {
                 response.put("supplier", "already exists");
             }
 
-            // Create a test restaurant
             User restaurant = new User();
             restaurant.email = "restaurant@test.com";
             restaurant.passwordSalt = passwordService.generateSalt();

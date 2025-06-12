@@ -1,11 +1,6 @@
 package com.xitomate.infrastructure.rest;
 
-import com.xitomate.application.useCase.GetAvailableCatalogUseCase;
-import com.xitomate.application.useCase.GetPipelineStatusUseCase;
-import com.xitomate.application.useCase.GetDailyIncomeUseCase;
-import com.xitomate.application.useCase.GetLowStockAlertUseCase;
-import com.xitomate.application.useCase.GetTopProductsUseCase;
-import com.xitomate.application.useCase.GetActiveProductsUseCase;
+import com.xitomate.application.useCase.*;
 import com.xitomate.domain.dto.StatusCountDTO;
 import com.xitomate.domain.entity.SupplierProduct;
 import jakarta.inject.Inject;
@@ -17,6 +12,7 @@ import java.util.List;
 @Path("/suppliers/{id}/catalog")
 @Produces(MediaType.APPLICATION_JSON)
 public class SupplierCatalogResource {
+
     @Inject GetAvailableCatalogUseCase useCase;
     @Inject GetPipelineStatusUseCase pipelineStatusUseCase;
     @Inject GetDailyIncomeUseCase dailyIncomeUseCase;

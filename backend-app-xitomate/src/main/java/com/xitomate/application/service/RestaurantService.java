@@ -17,10 +17,9 @@ public class RestaurantService {
 
     @Transactional
     public Dish createDish(Dish dish, SecurityContext securityContext) {
-        // Get the email from the security context
+
         String email = securityContext.getUserPrincipal().getName();
-        
-        // Find the restaurant user by email
+
         User restaurant = entityManager.createQuery(
             "SELECT u FROM User u WHERE u.email = :email", User.class)
             .setParameter("email", email)
@@ -35,10 +34,8 @@ public class RestaurantService {
     }
 
     public List<Dish> getDishes(SecurityContext securityContext) {
-        // Get the email from the security context
         String email = securityContext.getUserPrincipal().getName();
         
-        // Find the restaurant user by email
         User restaurant = entityManager.createQuery(
             "SELECT u FROM User u WHERE u.email = :email", User.class)
             .setParameter("email", email)

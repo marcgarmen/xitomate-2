@@ -31,127 +31,42 @@ public class SupplierOrderResource {
     @Path("/all")
     @RolesAllowed("SUPPLIER")
     public Response getAllOrders(@QueryParam("supplierId") Long supplierId, @Context jakarta.ws.rs.core.SecurityContext securityContext) {
-        Long userId = Long.parseLong(securityContext.getUserPrincipal().getName());
-        if (!userId.equals(supplierId)) {
-            return Response.status(Response.Status.FORBIDDEN).entity(java.util.Map.of("error", "No autorizado para ver las órdenes de otro proveedor")).build();
-        }
-        try {
-            List<OrderRequest> orders = useCase.getAllOrders(supplierId);
-            List<OrderRequestViewDTO> dtos = orders.stream().map(order -> new OrderRequestViewDTO(
-                order.id,
-                order.restaurant != null ? order.restaurant.nombre : null,
-                order.restaurant != null ? order.restaurant.email : null,
-                order.supplier != null ? order.supplier.nombre : null,
-                order.supplier != null ? order.supplier.email : null,
-                order.status != null ? order.status.name() : null,
-                order.fecha,
-                order.total,
-                order.paymentMethod != null ? order.paymentMethod.name() : null
-            )).collect(java.util.stream.Collectors.toList());
-            return Response.ok(dtos).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(java.util.Map.of("error", e.getMessage()))
-                    .build();
-        }
+        List<OrderRequest> orders = useCase.getAllOrders(supplierId);
+        return Response.ok(orders).build();
     }
 
     @GET
     public Response getPendingOrders(@QueryParam("supplierId") Long supplierId) {
-        try {
-            List<OrderRequest> orders = useCase.getPendingOrders(supplierId);
-            List<OrderRequestViewDTO> dtos = orders.stream().map(order -> new OrderRequestViewDTO(
-                order.id,
-                order.restaurant != null ? order.restaurant.nombre : null,
-                order.restaurant != null ? order.restaurant.email : null,
-                order.supplier != null ? order.supplier.nombre : null,
-                order.supplier != null ? order.supplier.email : null,
-                order.status != null ? order.status.name() : null,
-                order.fecha,
-                order.total,
-                order.paymentMethod != null ? order.paymentMethod.name() : null
-            )).collect(Collectors.toList());
-            return Response.ok(dtos).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", e.getMessage()))
-                    .build();
-        }
+        List<OrderRequest> orders = useCase.getPendingOrders(supplierId);
+        return Response.ok(orders).build();
     }
 
     @POST
     @Path("/{id}/accept")
     public Response acceptOrder(@PathParam("id") Long orderId, 
                               @QueryParam("supplierId") Long supplierId) {
-        try {
-            OrderRequest order = useCase.acceptOrder(orderId, supplierId);
-            OrderRequestViewDTO dto = new OrderRequestViewDTO(
-                order.id,
-                order.restaurant != null ? order.restaurant.nombre : null,
-                order.restaurant != null ? order.restaurant.email : null,
-                order.supplier != null ? order.supplier.nombre : null,
-                order.supplier != null ? order.supplier.email : null,
-                order.status != null ? order.status.name() : null,
-                order.fecha,
-                order.total,
-                order.paymentMethod != null ? order.paymentMethod.name() : null
-            );
-            return Response.ok(dto).build();
-        } catch (IllegalArgumentException e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("error", e.getMessage()))
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", e.getMessage()))
-                    .build();
-        }
+        OrderRequest order = useCase.acceptOrder(orderId, supplierId);
+        return Response.ok(order).build();
     }
 
     @POST
     @Path("/{id}/decline")
     public Response declineOrder(@PathParam("id") Long orderId, 
                                @QueryParam("supplierId") Long supplierId) {
-        try {
-            OrderRequest order = useCase.declineOrder(orderId, supplierId);
-            OrderRequestViewDTO dto = new OrderRequestViewDTO(
-                order.id,
-                order.restaurant != null ? order.restaurant.nombre : null,
-                order.restaurant != null ? order.restaurant.email : null,
-                order.supplier != null ? order.supplier.nombre : null,
-                order.supplier != null ? order.supplier.email : null,
-                order.status != null ? order.status.name() : null,
-                order.fecha,
-                order.total,
-                order.paymentMethod != null ? order.paymentMethod.name() : null
-            );
-            return Response.ok(dto).build();
-        } catch (IllegalArgumentException e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("error", e.getMessage()))
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", e.getMessage()))
-                    .build();
-        }
+        OrderRequest order = useCase.declineOrder(orderId, supplierId);
+        return Response.ok(order).build();
     }
 
-    // Endpoint PATCH para cambiar el estado de una orden manualmente (solo para pruebas)
     @PATCH
     @Path("/{id}/status")
     @Transactional
     public Response updateOrderStatus(@PathParam("id") Long orderId, @QueryParam("status") String status) {
-        try {
-            OrderRequest order = entityManager.find(OrderRequest.class, orderId);
-            if (order == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Order not found")).build();
-            }
-            order.status = OrderStatus.valueOf(status);
-            entityManager.merge(order);
-            return Response.ok(Map.of("message", "Order status updated", "orderId", orderId, "newStatus", status)).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
+        OrderRequest order = entityManager.find(OrderRequest.class, orderId);
+        if (order == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
+        order.status = OrderStatus.valueOf(status);
+        entityManager.merge(order);
+        return Response.ok(order).build();
     }
 } 

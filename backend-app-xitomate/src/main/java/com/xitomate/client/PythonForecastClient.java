@@ -22,16 +22,19 @@ public class PythonForecastClient {
     public String getForecast(List<?> history) {
         try {
             HttpClient client = HttpClient.newHttpClient();
-            String body = mapper.writeValueAsString(new ForecastRequest(history));
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(prophetUrl))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            ForecastRequest request = new ForecastRequest(history);
+            String requestBody = mapper.writeValueAsString(request);
+
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(prophetUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             return response.body();
         } catch (Exception e) {
-            throw new RuntimeException("Error calling Prophet microservice: " + e.getMessage(), e);
+            throw new RuntimeException("Error calling forecast service", e);
         }
     }
 

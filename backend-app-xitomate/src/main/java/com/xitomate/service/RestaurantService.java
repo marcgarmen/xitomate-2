@@ -95,12 +95,10 @@ public class RestaurantService {
                 throw new RuntimeException("Restaurant not found");
             }
 
-            // Validar que el plato tenga ingredientes
             if (dishDTO.getIngredientes() == null || dishDTO.getIngredientes().isEmpty()) {
                 throw new RuntimeException("El plato debe tener al menos un ingrediente");
             }
 
-            // Crear el plato
             Dish dish = new Dish();
             dish.nombre = dishDTO.getNombre();
             dish.precio = dishDTO.getPrecio();
@@ -256,7 +254,6 @@ public class RestaurantService {
 
         saleRepository.persist(sale);
         
-        // Set the ID in the DTO before returning
         saleDTO.setId(sale.id);
         saleDTO.setFecha(sale.fecha);
         saleDTO.setTotal(sale.total);
@@ -361,13 +358,10 @@ public class RestaurantService {
             throw new RuntimeException("Sale not found or unauthorized");
         }
 
-        // Update payment method
         sale.metodoPago = saleDTO.getMetodoPago();
 
-        // Clear existing items
         sale.items.clear();
 
-        // Add new items
         BigDecimal total = BigDecimal.ZERO;
         for (SaleItemDTO itemDTO : saleDTO.getItems()) {
             Dish dish = entityManager.find(Dish.class, itemDTO.getDishId());
@@ -385,14 +379,11 @@ public class RestaurantService {
             sale.items.add(item);
         }
 
-        // Update total
         sale.total = total;
 
-        // Merge the updated sale
         sale = entityManager.merge(sale);
         entityManager.flush();
 
-        // Create response DTO
         SaleDTO responseDTO = new SaleDTO();
         responseDTO.setId(sale.id);
         responseDTO.setMetodoPago(sale.metodoPago);
@@ -700,7 +691,6 @@ public class RestaurantService {
         User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) throw new RuntimeException("Restaurant not found");
 
-        // Get sales for the last 7 days
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(6);
 
@@ -782,7 +772,7 @@ public class RestaurantService {
             List<Double> quantities = dates.stream()
                 .map(d -> entry.getValue().getOrDefault(LocalDate.parse(d), BigDecimal.ZERO).doubleValue())
                 .collect(Collectors.toList());
-
+            // FILTRO: solo ingredientes con al menos 3 días y cantidades variables
             if (quantities.size() >= 3 && quantities.stream().distinct().count() > 1) {
             obj.put("dates", dates);
             obj.put("quantities", quantities);
@@ -922,7 +912,6 @@ public class RestaurantService {
     }
 
     private String generateToken(User user) {
-        // En producción, implementar generación de JWT real
         return "JWT_TOKEN_" + user.id;
     }
 
@@ -953,14 +942,12 @@ public class RestaurantService {
         User restaurant = entityManager.find(User.class, Long.parseLong(userId));
         if (restaurant == null) throw new RuntimeException("Restaurant not found");
 
-        // Agrupa ventas por fech
         Map<LocalDate, Double> salesByDate = new HashMap<>();
         saleRepository.find("restaurant", restaurant).list().forEach(sale -> {
             LocalDate date = sale.fecha.toLocalDate();
             salesByDate.put(date, salesByDate.getOrDefault(date, 0.0) + (sale.total != null ? sale.total.doubleValue() : 0.0));
         });
 
-        // Ordena por fecha ascendente
         List<LocalDate> sortedDates = new ArrayList<>(salesByDate.keySet());
         Collections.sort(sortedDates);
 

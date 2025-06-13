@@ -1,24 +1,38 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import DishTable from './DishTable';
+import type { Meta, StoryObj } from '@storybook/react'
+import DishTable from './DishTable'
+import type { Dish } from './types'
 
 const meta: Meta<typeof DishTable> = {
-  title: 'Platillos/DishTable',
+  title: 'Components/DishTable',
   component: DishTable,
-};
-export default meta;
-type Story = StoryObj<typeof DishTable>;
-
-export const OneDish: Story = {
   args: {
     dishes: [
       {
-        name: 'Huevos a la mexicana',
-        ingredients: [
-          { name: 'Huevos', quantity: 4 },
-          { name: 'Tomate', quantity: 1 },
-          { name: 'Cebolla', quantity: 2 },
+        id: 1,
+        nombre: 'Ensalada César',
+        precio: 89,
+        categoria: 'Ensaladas',
+        ingredientes: [
+          { nombreLibre: 'Lechuga', cantidad: 0.15, unidad: 'kg' },
+          { nombreLibre: 'Pollo', cantidad: 120, unidad: 'g' },
         ],
       },
-    ],
+      {
+        id: 2,
+        nombre: 'Taco al pastor',
+        precio: 49,
+        categoria: 'Tacos',
+        ingredientes: [
+          { nombreLibre: 'Tortilla', cantidad: 2, unidad: 'piezas' },
+          { nombreLibre: 'Carne al pastor', cantidad: 120, unidad: 'g' },
+        ],
+      },
+    ] as Dish[],
+    onEdit: () => {},
+    onDelete: () => {},
   },
-};
+}
+export default meta
+type Story = StoryObj<typeof DishTable>
+
+export const Default: Story = {}

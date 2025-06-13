@@ -25,7 +25,7 @@ export function AddSaleModal({
   onClose,
   onSave,
   editSale,
-  dishes = []
+  dishes = [],
 }: Props) {
   const [selectedDishId, setSelectedDishId] = useState('')
   const [qty, setQty] = useState('')
@@ -46,15 +46,7 @@ export function AddSaleModal({
   const handleSave = () => {
     const cantidad = Number(qty)
     if (!selectedDishId || cantidad <= 0) return
-
-    onSave(
-      {
-        dishId: selectedDishId,
-        quantity: cantidad,
-        metodoPago
-      },
-      editSale?.id
-    )
+    onSave({ dishId: selectedDishId, quantity: cantidad, metodoPago }, editSale?.id)
     onClose()
   }
 
@@ -62,19 +54,21 @@ export function AddSaleModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{editSale ? 'Editar venta' : 'Registrar venta'}</DialogTitle>
+          <DialogTitle className="text-[#101828] text-2xl font-bold">
+            {editSale ? 'Editar venta' : 'Registrar venta'}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <select
             className="w-full rounded-md p-2 bg-white border border-input text-sm shadow-sm focus-visible:ring-ring/50 outline-none"
             value={selectedDishId}
-            onChange={e => setSelectedDishId(e.target.value)}
+            onChange={(e) => setSelectedDishId(e.target.value)}
           >
             <option value="">Seleccionar plato</option>
-            {dishes.map(dish => (
-              <option key={dish.id} value={dish.id.toString()}>
-                {dish.nombre} – ${dish.precio.toFixed(2)}
+            {dishes.map((d) => (
+              <option key={d.id} value={d.id.toString()}>
+                {d.nombre} – ${d.precio.toFixed(2)}
               </option>
             ))}
           </select>
@@ -84,13 +78,13 @@ export function AddSaleModal({
             placeholder="Cantidad"
             value={qty}
             min={1}
-            onChange={e => setQty(e.target.value)}
+            onChange={(e) => setQty(e.target.value)}
           />
 
           <select
             className="w-full rounded-md p-2 bg-white border border-input text-sm shadow-sm focus-visible:ring-ring/50 outline-none"
             value={metodoPago}
-            onChange={e => setMetodoPago(e.target.value)}
+            onChange={(e) => setMetodoPago(e.target.value)}
           >
             <option value="CARD">Tarjeta</option>
             <option value="CASH">Efectivo</option>
@@ -98,7 +92,7 @@ export function AddSaleModal({
           </select>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="pt-6">
           <Button variant="SignUpRed" onClick={onClose}>
             Cancelar
           </Button>

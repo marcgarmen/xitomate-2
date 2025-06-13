@@ -1,37 +1,46 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/Button/Button';
-import SelectionCardRestaurant from '@/components/CardSelection/SelectionCardRestaurant';
-import SelectionCardSupplier from '@/components/CardSelection/SelectionCardSupplier';
-import { registerUser } from '@/service/auth';
-import { useToast } from '@/components/toast/ToastProvider';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/Button/Button'
+import SelectionCardRestaurant from '@/components/CardSelection/SelectionCardRestaurant'
+import SelectionCardSupplier from '@/components/CardSelection/SelectionCardSupplier'
+import { registerUser } from '@/service/auth'
+import { useToast } from '@/components/toast/ToastProvider'
+import { useAuth } from '@/context/AuthContext'
+
+const inputClass =
+  'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A1C374]'
 
 export default function RegistroPage() {
-  const router = useRouter();
-  const [selectedType, setSelectedType] = useState<'restaurante' | 'proveedor' | null>(null);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
+  const router = useRouter()
+  const { role, ready } = useAuth()
+  const [selectedType, setSelectedType] = useState<'restaurante' | 'proveedor' | null>(null)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
     password: '',
     ubicacion: '',
-  });
+  })
+  const toast = useToast()
 
-  const addToast = useToast();
+  useEffect(() => {
+    if (!ready) return
+    if (role === 'restaurante') router.replace('/platillos')
+    else if (role === 'proveedor') router.replace('/productos')
+  }, [ready, role, router])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
 
   const handleSubmit = async () => {
     if (!selectedType || !termsAccepted) {
-      addToast('error', 'Debes seleccionar tipo y aceptar los términos');
-      return;
+      toast('error', 'Debes seleccionar tipo y aceptar los términos')
+      return
     }
-
     try {
       const payload = {
         nombre: formData.nombre,
@@ -39,27 +48,20 @@ export default function RegistroPage() {
         password: formData.password,
         ubicacion: formData.ubicacion,
         role: selectedType === 'restaurante' ? 'RESTAURANT' : 'SUPPLIER',
-      };
-
-      await registerUser(payload);
-      addToast('success', '¡Registro exitoso!');
-
-      if (selectedType === 'restaurante') {
-        router.push('/platillos');
-      } else {
-        router.push('/productos');
       }
-    } catch (err) {
-      console.error('Error al registrar usuario:', err);
-      addToast('error', 'Hubo un error al registrar. Intenta de nuevo.');
+      await registerUser(payload)
+      toast('success', '¡Registro exitoso!')
+      if (selectedType === 'restaurante') router.push('/platillos')
+      else router.push('/productos')
+    } catch {
+      toast('error', 'Hubo un error al registrar. Intenta de nuevo.')
     }
-  };
+  }
 
   return (
     <main className="min-h-screen px-6 py-12 bg-white flex flex-col items-center">
       <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Registro</h1>
       <p className="text-gray-600 mb-8 text-center">Selecciona tu tipo de operación:</p>
-
       <div className="flex flex-col md:flex-row gap-6 mb-12">
         <SelectionCardRestaurant
           selected={selectedType === 'restaurante'}
@@ -70,11 +72,10 @@ export default function RegistroPage() {
           onClick={() => setSelectedType('proveedor')}
         />
       </div>
-
       <form
         onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
+          e.preventDefault()
+          handleSubmit()
         }}
         className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl"
       >
@@ -114,7 +115,6 @@ export default function RegistroPage() {
           required
           className={inputClass}
         />
-
         <div className="col-span-2 flex flex-col gap-4 mt-4">
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input
@@ -125,8 +125,8 @@ export default function RegistroPage() {
             ¿Aceptas nuestros{' '}
             <button
               onClick={(e) => {
-                e.preventDefault();
-                setShowTerms(true);
+                e.preventDefault()
+                setShowTerms(true)
               }}
               className="text-[#E11D48] font-semibold hover:underline"
             >
@@ -141,7 +141,6 @@ export default function RegistroPage() {
           </div>
         </div>
       </form>
-
       {showTerms && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-lg w-full shadow-lg relative">
@@ -159,8 +158,5 @@ export default function RegistroPage() {
         </div>
       )}
     </main>
-  );
+  )
 }
-
-const inputClass =
-  'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A1C374]';

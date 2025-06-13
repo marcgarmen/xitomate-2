@@ -18,7 +18,7 @@ export default function SalesPage() {
     addOrUpdateSale,
     addOrUpdateInventory,
     deleteSale,
-    deleteInventory
+    deleteInventory,
   } = useSalesInventory()
 
   const [saleModalOpen, setSaleModalOpen] = useState(false)
@@ -29,29 +29,31 @@ export default function SalesPage() {
 
   return (
     <ProtectedRestaurant>
-      <main className="bg-[#FAF5F0] min-h-screen px-6 py-10">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">Registra tus ventas e inventario</h1>
-          <p className="text-gray-600 mb-8">
-            Monitorea y administra las ventas e inventario de tu restaurante desde aquí
+      <main className="min-h-screen bg-[#F2F2F2]">
+        <section className="bg-[#E74B6D] text-white py-16 text-center">
+          <h1 className="text-4xl font-extrabold mb-2">Ventas e Inventario</h1>
+          <p className="text-lg">
+            Monitorea el desempeño diario de tu restaurante
           </p>
+        </section>
 
-          <div className="mb-6 border-b border-gray-300">
+        <div className="max-w-6xl mx-auto px-4 py-12">
+          <div className="flex gap-4 mb-8">
             <button
-              className={`px-4 py-2 -mb-px ${
+              className={`px-6 py-2 rounded-full font-semibold cursor-pointer transition ${
                 activeTab === 'ventas'
-                  ? 'border-b-2 border-green-600 font-medium'
-                  : 'text-gray-600'
+                  ? 'bg-[#5EBD6C] text-white shadow'
+                  : 'text-gray-600 bg-transparent hover:bg-gray-100'
               }`}
               onClick={() => setActiveTab('ventas')}
             >
               Ventas
             </button>
             <button
-              className={`ml-4 px-4 py-2 -mb-px ${
+              className={`px-6 py-2 rounded-full font-semibold cursor-pointer transition ${
                 activeTab === 'inventario'
-                  ? 'border-b-2 border-green-600 font-medium'
-                  : 'text-gray-600'
+                  ? 'bg-[#5EBD6C] text-white shadow'
+                  : 'text-gray-600 bg-transparent hover:bg-gray-100'
               }`}
               onClick={() => setActiveTab('inventario')}
             >
@@ -61,12 +63,12 @@ export default function SalesPage() {
 
           {activeTab === 'ventas' && (
             <div>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Ventas registradas</h2>
                 <Button
                   variant="SignupGreen"
                   onClick={() => {
-                    setActiveTab('ventas')
+                    setEditingSale(null)
                     setSaleModalOpen(true)
                   }}
                 >
@@ -75,9 +77,8 @@ export default function SalesPage() {
               </div>
               <SalesTable
                 sales={sales}
-                onEdit={(sale) => {
-                  setActiveTab('ventas')
-                  setEditingSale(sale)
+                onEdit={(s) => {
+                  setEditingSale(s)
                   setSaleModalOpen(true)
                 }}
                 onDelete={deleteSale}
@@ -87,12 +88,12 @@ export default function SalesPage() {
 
           {activeTab === 'inventario' && (
             <div>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Inventario</h2>
                 <Button
                   variant="SignupGreen"
                   onClick={() => {
-                    setActiveTab('inventario')
+                    setEditingInv(null)
                     setInvModalOpen(true)
                   }}
                 >
@@ -101,37 +102,36 @@ export default function SalesPage() {
               </div>
               <InventoryTable
                 items={inventory}
-                onEdit={(item) => {
-                  setActiveTab('inventario')
-                  setEditingInv(item)
+                onEdit={(i) => {
+                  setEditingInv(i)
                   setInvModalOpen(true)
                 }}
                 onDelete={deleteInventory}
               />
             </div>
           )}
-
-          <AddSaleModal
-            open={saleModalOpen}
-            onClose={() => {
-              setSaleModalOpen(false)
-              setEditingSale(null)
-            }}
-            onSave={addOrUpdateSale}
-            editSale={editingSale}
-            dishes={dishes}
-          />
-
-          <AddInventoryModal
-            open={invModalOpen}
-            onClose={() => {
-              setInvModalOpen(false)
-              setEditingInv(null)
-            }}
-            onSave={addOrUpdateInventory}
-            editItem={editingInv}
-          />
         </div>
+
+        <AddSaleModal
+          open={saleModalOpen}
+          onClose={() => {
+            setSaleModalOpen(false)
+            setEditingSale(null)
+          }}
+          onSave={addOrUpdateSale}
+          editSale={editingSale}
+          dishes={dishes}
+        />
+
+        <AddInventoryModal
+          open={invModalOpen}
+          onClose={() => {
+            setInvModalOpen(false)
+            setEditingInv(null)
+          }}
+          onSave={addOrUpdateInventory}
+          editItem={editingInv}
+        />
       </main>
     </ProtectedRestaurant>
   )

@@ -1,5 +1,6 @@
 package com.xitomate.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -7,10 +8,15 @@ import java.math.BigDecimal;
 @Table(name = "order_product")
 @IdClass(OrderProductPK.class)
 public class OrderProduct {
-    @Id @ManyToOne @JoinColumn(name = "order_id")
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    @JsonBackReference
     public OrderRequest order;
 
-    @Id @ManyToOne @JoinColumn(name = "supplier_product_id")
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "supplier_product_id")
     public SupplierProduct supplierProduct;
 
     public Integer cantidad;

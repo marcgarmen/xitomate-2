@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import {
   Dialog,
@@ -6,27 +6,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/Button/Button";
-import { Plus, Minus } from "lucide-react";
-import { useEffect, useState } from "react";
-import type { Dish } from "./types";
-import { useToast } from "@/components/toast/ToastProvider";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/Button/Button'
+import { Plus, Minus } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import type { Dish } from './types'
+import { useToast } from '@/components/toast/ToastProvider'
 
 type Row = {
-  id: number;
-  supplierProductId?: number;
-  nombreLibre: string;
-  cantidad: number | "";
-  unidad: "kg" | "piezas" | "otro";
-};
+  id: number
+  supplierProductId?: number
+  nombreLibre: string
+  cantidad: number | ''
+  unidad: 'kg' | 'piezas' | 'otro'
+}
 
 interface Props {
-  open: boolean;
-  onClose: () => void;
-  onSave: (dish: Dish) => void;
-  initialDish?: Dish;
+  open: boolean
+  onClose: () => void
+  onSave: (dish: Dish) => void
+  initialDish?: Dish
 }
 
 export default function AddDishModal({
@@ -35,89 +35,74 @@ export default function AddDishModal({
   onSave,
   initialDish,
 }: Props) {
-  const toast = useToast();
-  const [dishName, setDishName] = useState("");
-  const [dishPrecio, setDishPrecio] = useState<number | "">("");
-  const [dishCategoria, setDishCategoria] = useState("");
+  const toast = useToast()
+  const [dishName, setDishName] = useState('')
+  const [dishPrecio, setDishPrecio] = useState<number | ''>('')
+  const [dishCategoria, setDishCategoria] = useState('')
   const [rows, setRows] = useState<Row[]>([
-    { id: Date.now(), nombreLibre: "", cantidad: "", unidad: "kg" },
-  ]);
+    { id: Date.now(), nombreLibre: '', cantidad: '', unidad: 'kg' },
+  ])
 
   useEffect(() => {
     if (initialDish) {
-      setDishName(initialDish.nombre);
-      setDishPrecio(initialDish.precio);
-      setDishCategoria(initialDish.categoria);
+      setDishName(initialDish.nombre)
+      setDishPrecio(initialDish.precio)
+      setDishCategoria(initialDish.categoria)
       const initialRows: Row[] = initialDish.ingredientes.map((ing, i) => ({
         id: i + 1,
         supplierProductId: ing.supplierProductId,
-        nombreLibre: ing.nombreLibre || "",
+        nombreLibre: ing.nombreLibre || '',
         cantidad: ing.cantidad,
         unidad:
-          ing.unidad === "kg" ||
-          ing.unidad === "piezas" ||
-          ing.unidad === "otro"
+          ing.unidad === 'kg' || ing.unidad === 'piezas' || ing.unidad === 'otro'
             ? ing.unidad
-            : "otro",
-      }));
-      setRows(initialRows);
+            : 'otro',
+      }))
+      setRows(initialRows)
     } else {
-      setDishName("");
-      setDishPrecio("");
-      setDishCategoria("");
-      setRows([{ id: Date.now(), nombreLibre: "", cantidad: "", unidad: "kg" }]);
+      setDishName('')
+      setDishPrecio('')
+      setDishCategoria('')
+      setRows([{ id: Date.now(), nombreLibre: '', cantidad: '', unidad: 'kg' }])
     }
-  }, [initialDish, open]);
+  }, [initialDish, open])
 
   const addRow = () => {
-    const last = rows.at(-1)!;
-    if (!last.nombreLibre.trim() || last.cantidad === "") return;
-    setRows([
-      ...rows,
-      { id: Date.now(), nombreLibre: "", cantidad: "", unidad: "kg" },
-    ]);
-  };
-
-  const removeRow = (id: number) => {
-    setRows(rows.filter((r) => r.id !== id));
-  };
-
+    const last = rows.at(-1)!
+    if (!last.nombreLibre.trim() || last.cantidad === '') return
+    setRows([...rows, { id: Date.now(), nombreLibre: '', cantidad: '', unidad: 'kg' }])
+  }
+  const removeRow = (id: number) => setRows(rows.filter((r) => r.id !== id))
   const changeRow = (
     id: number,
-    field: "nombreLibre" | "cantidad" | "unidad",
+    field: 'nombreLibre' | 'cantidad' | 'unidad',
     value: string | number
   ) => {
-    setRows((rows) =>
-      rows.map((r) =>
+    setRows((rs) =>
+      rs.map((r) =>
         r.id === id
-          ? {
-              ...r,
-              [field]:
-                field === "cantidad"
-                  ? (value === "" ? "" : Number(value))
-                  : value,
-            }
+          ? { ...r, [field]: field === 'cantidad' ? (value === '' ? '' : Number(value)) : value }
           : r
       )
-    );
-  };
+    )
+  }
 
   const handleSave = () => {
-    if (!dishName.trim() || dishPrecio === "" || !dishCategoria.trim()) {
-      toast("error", "Por favor completa nombre, precio y categoría");
-      return;
+    if (!dishName.trim() || dishPrecio === '' || !dishCategoria.trim()) {
+      toast('error', 'Por favor completa nombre, precio y categoría')
+      return
     }
     const validRows = rows.filter(
-      (r) => r.nombreLibre.trim() && r.cantidad !== "" && r.cantidad > 0
-    );
+      (r) => r.nombreLibre.trim() && r.cantidad !== '' && r.cantidad > 0
+    )
     if (!validRows.length) {
-      toast("error", "Debes agregar al menos un ingrediente");
-      return;
+      toast('error', 'Debes agregar al menos un ingrediente')
+      return
     }
     const dishToSave: Dish = {
       id: initialDish ? initialDish.id : 0,
       nombre: dishName.trim(),
-      precio: typeof dishPrecio === "number" ? dishPrecio : Number(dishPrecio),
+      precio: typeof dishPrecio === 'number' ? dishPrecio : Number(dishPrecio),
       categoria: dishCategoria.trim(),
       ingredientes: validRows.map((r) => ({
         supplierProductId: r.supplierProductId,
@@ -125,19 +110,20 @@ export default function AddDishModal({
         cantidad: Number(r.cantidad),
         unidad: r.unidad,
       })),
-    };
-    onSave(dishToSave);
-    onClose();
-  };
+    }
+    onSave(dishToSave)
+    onClose()
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>
-            {initialDish ? "Editar platillo" : "Nuevo platillo"}
+          <DialogTitle className="text-2xl font-bold text-[#101828]">
+            {initialDish ? 'Editar platillo' : 'Nuevo platillo'}
           </DialogTitle>
         </DialogHeader>
+
         <div className="space-y-4">
           <Input
             placeholder="Nombre del platillo"
@@ -151,7 +137,7 @@ export default function AddDishModal({
             placeholder="Precio"
             value={dishPrecio}
             onChange={(e) =>
-              setDishPrecio(e.target.value === "" ? "" : Number(e.target.value))
+              setDishPrecio(e.target.value === '' ? '' : Number(e.target.value))
             }
           />
           <Input
@@ -159,30 +145,29 @@ export default function AddDishModal({
             value={dishCategoria}
             onChange={(e) => setDishCategoria(e.target.value)}
           />
+
           {rows.map((row, idx) => (
             <div key={row.id} className="flex gap-2 items-center">
               {idx === rows.length - 1 ? (
                 <button
                   onClick={addRow}
-                  className="p-1 rounded-full border border-[#A1C374] text-[#A1C374] hover:bg-[#A1C374]/10"
+                  className="cursor-pointer w-7 h-7 flex items-center justify-center rounded-full bg-[#5EBD6C] hover:bg-[#49A15A] text-white"
                 >
-                  <Plus size={16} />
+                  <Plus className="size-4" />
                 </button>
               ) : (
                 <button
                   onClick={() => removeRow(row.id)}
-                  className="p-1 rounded-full border border-[#F45E62] text-[#F45E62] hover:bg-[#F45E62]/10"
+                  className="cursor-pointer w-7 h-7 flex items-center justify-center rounded-full bg-[#E11D48] hover:bg-[#d43f50] text-white"
                 >
-                  <Minus size={16} />
+                  <Minus className="size-4" />
                 </button>
               )}
               <Input
                 className="flex-1"
                 placeholder="Ingrediente (nombre)"
                 value={row.nombreLibre}
-                onChange={(e) =>
-                  changeRow(row.id, "nombreLibre", e.target.value)
-                }
+                onChange={(e) => changeRow(row.id, 'nombreLibre', e.target.value)}
               />
               <Input
                 className="w-24 text-center"
@@ -194,21 +179,15 @@ export default function AddDishModal({
                 onChange={(e) =>
                   changeRow(
                     row.id,
-                    "cantidad",
-                    e.target.value === "" ? "" : Number(e.target.value)
+                    'cantidad',
+                    e.target.value === '' ? '' : Number(e.target.value)
                   )
                 }
               />
               <select
                 className="px-2 py-1 border rounded"
                 value={row.unidad}
-                onChange={(e) =>
-                  changeRow(
-                    row.id,
-                    "unidad",
-                    e.target.value as "kg" | "piezas" | "otro"
-                  )
-                }
+                onChange={(e) => changeRow(row.id, 'unidad', e.target.value)}
               >
                 <option value="kg">kg</option>
                 <option value="piezas">piezas</option>
@@ -217,21 +196,20 @@ export default function AddDishModal({
             </div>
           ))}
         </div>
-        <DialogFooter className="pt-4 flex justify-end gap-4">
+
+        <DialogFooter className="pt-6 flex justify-end gap-4">
           <Button variant="SignUpRed" onClick={onClose}>
             Cancelar
           </Button>
           <Button
             variant="SignupGreen"
             onClick={handleSave}
-            disabled={
-              !dishName.trim() || dishPrecio === "" || !dishCategoria.trim()
-            }
+            disabled={!dishName.trim() || dishPrecio === '' || !dishCategoria.trim()}
           >
-            {initialDish ? "Guardar" : "Agregar"}
+            {initialDish ? 'Guardar' : 'Agregar'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

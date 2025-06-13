@@ -1,11 +1,23 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
-import { SignInFields } from '@/components/SignInFields/SignInFields';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image'
+import { SignInFields } from '@/components/SignInFields/SignInFields'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
+import { useEffect } from 'react'
 
 export default function LoginPage() {
-  const router = useRouter();
+  const router = useRouter()
+  const { role, ready } = useAuth()
+
+  useEffect(() => {
+    if (!ready) return
+    if (role === 'restaurante') {
+      router.replace('/platillos')
+    } else if (role === 'proveedor') {
+      router.replace('/productos')
+    }
+  }, [ready, role, router])
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#F2F2F2] px-6">
@@ -19,15 +31,12 @@ export default function LoginPage() {
             className="object-contain"
           />
         </div>
-
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
           <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
             Iniciar sesión
           </h2>
           <p className="text-gray-600 mb-8">Ingresa tu cuenta</p>
-
           <SignInFields />
-
           <p className="text-center text-gray-600 mt-6">
             ¿No tienes cuenta?{' '}
             <button
@@ -40,5 +49,5 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
-  );
+  )
 }

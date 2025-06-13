@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from './Button';
+import type { Meta, StoryObj } from '@storybook/react'
+import { Button } from './Button'
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
@@ -13,51 +13,31 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: [
-        'SignUpRed',
-        'AccountRed',
-        'SignupGreen',
-        'OutlineGreen', // ← añadido
-      ],
+      options: ['SignUpRed', 'AccountRed', 'SignupGreen', 'OutlineGreen'],
     },
     size: {
       control: 'select',
       options: ['default', 'sm', 'lg', 'icon'],
     },
-    children: {
-      control: 'text',
-      description: 'Text inside the button',
-    },
+    children: { control: 'text' },
   },
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof Button>;
+export default meta
+type Story = StoryObj<typeof Button>
 
 export const SignUpRed: Story = {
-  args: {
-    variant: 'SignUpRed',
-    children: 'Registro',
-  },
-};
+  args: { variant: 'SignUpRed', children: 'Registro' },
+}
 
 export const SignupGreen: Story = {
-  args: {
-    variant: 'SignupGreen',
-    children: 'Nuevo platillo',
-  },
-};
+  args: { variant: 'SignupGreen', children: 'Nuevo platillo' },
+}
 
 export const AccountRed: Story = {
-  args: {
-    variant: 'AccountRed',
-    children: 'Mi cuenta',
-  },
-};
+  args: { variant: 'AccountRed', children: 'Mi cuenta' },
+}
 
 export const OutlineGreen: Story = {
-  args: {
-    variant: 'OutlineGreen',
-    children: 'Agregar',
-  },
-};
+  args: { variant: 'OutlineGreen', children: 'Agregar' },
+}

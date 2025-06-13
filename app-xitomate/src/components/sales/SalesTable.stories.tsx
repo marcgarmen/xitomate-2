@@ -1,25 +1,26 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { SalesTable } from './SalesTable';
-import type { Sale } from './types';
+import type { Meta, StoryObj } from '@storybook/react'
+import { SalesTable } from './SalesTable'
+import type { Sale } from './types'
 
 const meta: Meta<typeof SalesTable> = {
+  title: 'Components/SalesTable',
   component: SalesTable,
-  title: 'Sales/SalesTable',
-};
-export default meta;
-
-export const Default: StoryObj<typeof SalesTable> = {
   args: {
     sales: [
       {
         id: 1,
-        dish: 'Huevos rancheros',
+        dishId: 1,
+        dishName: 'Taco al pastor',
         quantity: 3,
         unitPrice: 45,
+        metodoPago: 'CASH',
         date: new Date(),
-      } as Sale,
-    ],
+      },
+    ] as Sale[],
     onEdit: () => {},
     onDelete: () => {},
   },
-};
+}
+export default meta
+type Story = StoryObj<typeof SalesTable>
+export const Default: Story = {}

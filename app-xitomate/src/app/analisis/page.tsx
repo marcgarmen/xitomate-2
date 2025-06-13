@@ -1,28 +1,25 @@
-"use client";
+'use client'
 
-import DashboardCards from "@/components/analysis/DashboardCards";
-import SalesByDishChart from "@/components/analysis/SalesByDishChart";
-import DishSalesForecastTable from '@/components/analysis/DishSalesForecastTable';
-import InventoryUsageTable from "@/components/analysis/InventoryUsageTable";
-import PurchaseRecommendations from "@/components/analysis/PurchaseRecommendations";
-import AlertList from "@/components/analysis/AlertList";
-import ProtectedRestaurant from "@/components/ProtectedRestaurant";
+import DashboardCards from '@/components/analysis/DashboardCards'
+import SalesByDishChart from '@/components/analysis/SalesByDishChart'
+import DishSalesForecastTable from '@/components/analysis/DishSalesForecastTable'
+import InventoryUsageTable from '@/components/analysis/InventoryUsageTable'
+import PurchaseRecommendations from '@/components/analysis/PurchaseRecommendations'
+import AlertList from '@/components/analysis/AlertList'
+import ProtectedRestaurant from '@/components/ProtectedRestaurant'
 
 export default function AnalysisPage() {
   return (
     <ProtectedRestaurant>
-      <main className="bg-[#FAF5F0] min-h-screen">
-        <div className="container mx-auto max-w-6xl py-10 space-y-10">
-          <section>
-            <h1 className="text-3xl font-bold mb-2">
-              Análisis inteligente de insumos
-            </h1>
-            <p className="text-gray-700">
-              Toma decisiones con base en datos: controla tus compras, evita
-              desperdicio y mejora tu rentabilidad.
-            </p>
-          </section>
+      <main className="min-h-screen bg-[#F2F2F2]">
+        <section className="bg-[#E74B6D] text-white py-16 text-center">
+          <h1 className="text-4xl font-extrabold mb-2">Análisis de Insumos</h1>
+          <p className="text-lg">
+            Controla compras, evita desperdicio y mejora tu rentabilidad.
+          </p>
+        </section>
 
+        <div className="max-w-6xl mx-auto px-4 py-12 space-y-12">
           <DashboardCards />
 
           <section>
@@ -39,5 +36,5 @@ export default function AnalysisPage() {
         </div>
       </main>
     </ProtectedRestaurant>
-  );
+  )
 }

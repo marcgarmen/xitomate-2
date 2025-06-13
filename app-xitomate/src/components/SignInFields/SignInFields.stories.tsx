@@ -1,11 +1,13 @@
-import React from "react";
-import { SignInFields } from "./SignInFields";
+import type { Meta, StoryObj } from '@storybook/react'
+import { SignInFields } from './SignInFields'
 
-export default {
-  title: "Components/SignInFields",
+const meta: Meta<typeof SignInFields> = {
+  title: 'Components/SignInFields',
   component: SignInFields,
-};
+  tags: ['autodocs'],
+}
 
-export const Default = {
-  args: {},
-};
+export default meta
+type Story = StoryObj<typeof SignInFields>
+
+export const Default: Story = {}

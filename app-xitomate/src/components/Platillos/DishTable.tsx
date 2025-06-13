@@ -1,73 +1,68 @@
-"use client";
+'use client'
 
-import { Pencil, Trash2 } from "lucide-react";
-import type { Dish } from "./types";
+import { Pencil, Trash2 } from 'lucide-react'
+import type { Dish } from './types'
 
 interface Props {
-  dishes: Dish[];
-  onEdit: (d: Dish) => void;
-  onDelete: (id: number) => void;
+  dishes: Dish[]
+  onEdit: (d: Dish) => void
+  onDelete: (id: number) => void
 }
 
 export default function DishTable({ dishes, onEdit, onDelete }: Props) {
-  if (!dishes.length) {
+  if (!dishes.length)
     return (
       <p className="text-center text-lg text-gray-500 py-12">
         Aún no has agregado platillos.
       </p>
-    );
-  }
+    )
 
   return (
-    <table className="w-full rounded-lg overflow-hidden text-left">
-      <thead className="bg-[#9BB968] text-black">
-        <tr>
-          <th className="p-3">Platillo</th>
-          <th className="p-3">Precio</th>
-          <th className="p-3">Ingredientes</th>
-          <th className="p-3">Cantidades</th>
-          <th className="p-3 w-20"></th>
-        </tr>
-      </thead>
-      <tbody>
-        {dishes.map((dish, idx) => (
-          <tr
-            key={dish.id}
-            className={idx % 2 ? "bg-[#EDF6E7]" : "bg-[#F5FAF2]"}
-          >
-            <td className="p-3 font-medium">{dish.nombre}</td>
-
-            <td className="p-3 font-medium">${dish.precio.toFixed(2)}</td>
-
-            <td className="p-3">
-              {dish.ingredientes.map((i, ii) => (
-                <div key={`${i.nombreLibre || i.supplierProductId}-${ii}`}>
-                  {i.nombreLibre ?? `ID ${i.supplierProductId}`}
-                </div>
-              ))}
-            </td>
-
-            <td className="p-3">
-              {dish.ingredientes.map((i, ii) => (
-                <div
-                  key={`${i.nombreLibre || i.supplierProductId}-qty-${ii}`}
-                >
-                  {i.cantidad} {i.unidad}
-                </div>
-              ))}
-            </td>
-
-            <td className="p-3 flex gap-2">
-              <button onClick={() => onEdit(dish)}>
-                <Pencil className="size-4" />
-              </button>
-              <button onClick={() => onDelete(dish.id)}>
-                <Trash2 className="size-4" />
-              </button>
-            </td>
+    <div className="overflow-x-auto rounded-2xl shadow-lg">
+      <table className="min-w-full text-left">
+        <thead className="bg-[#7BC47F] text-black">
+          <tr>
+            <th className="p-4">Platillo</th>
+            <th className="p-4">Precio</th>
+            <th className="p-4">Ingredientes</th>
+            <th className="p-4">Cantidades</th>
+            <th className="p-4 w-20" />
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+        </thead>
+        <tbody>
+          {dishes.map((d, i) => (
+            <tr
+              key={d.id}
+              className={`${
+                i % 2 ? 'bg-white' : 'bg-[#F5FAF2]'
+              } hover:bg-[#E6F7EB] transition-colors`}
+            >
+              <td className="p-4 font-semibold">{d.nombre}</td>
+              <td className="p-4 font-semibold">${d.precio.toFixed(2)}</td>
+              <td className="p-4">
+                {d.ingredientes.map((ing, ii) => (
+                  <div key={ii}>{ing.nombreLibre}</div>
+                ))}
+              </td>
+              <td className="p-4">
+                {d.ingredientes.map((ing, ii) => (
+                  <div key={ii}>
+                    {ing.cantidad} {ing.unidad}
+                  </div>
+                ))}
+              </td>
+              <td className="p-4 flex gap-2">
+                <button onClick={() => onEdit(d)} className="cursor-pointer">
+                  <Pencil className="size-4" />
+                </button>
+                <button onClick={() => onDelete(d.id)} className="cursor-pointer">
+                  <Trash2 className="size-4" />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
 }

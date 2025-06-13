@@ -1,25 +1,24 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { InventoryTable } from './InventoryTable';
-import type { InventoryItem } from './types';
+import type { Meta, StoryObj } from '@storybook/react'
+import { InventoryTable } from './InventoryTable'
+import type { InventoryItem } from './types'
 
 const meta: Meta<typeof InventoryTable> = {
+  title: 'Components/InventoryTable',
   component: InventoryTable,
-  title: 'Sales/InventoryTable',
-};
-export default meta;
-
-export const Default: StoryObj<typeof InventoryTable> = {
   args: {
     items: [
       {
         id: 1,
-        name: 'Huevos',
-        stock: 12,
-        unit: 'pzas',
+        name: 'Harina',
+        stock: 2,
+        unit: 'kg',
         updatedAt: new Date(),
-      } as InventoryItem,
-    ],
+      },
+    ] as InventoryItem[],
     onEdit: () => {},
     onDelete: () => {},
   },
-};
+}
+export default meta
+type Story = StoryObj<typeof InventoryTable>
+export const Default: Story = {}

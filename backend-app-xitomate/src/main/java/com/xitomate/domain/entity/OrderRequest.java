@@ -1,5 +1,6 @@
 package com.xitomate.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.xitomate.domain.enums.OrderStatus;
 import com.xitomate.domain.enums.PaymentMethod;
 import jakarta.persistence.*;
@@ -10,14 +11,15 @@ import java.util.List;
 @Entity
 @Table(name = "order_request")
 public class OrderRequest {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
     public User restaurant;
 
-    @ManyToOne(fetch = FetchType.LAZY) 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id")
     public User supplier;
 
@@ -36,5 +38,6 @@ public class OrderRequest {
     public PaymentMethod paymentMethod;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     public List<OrderProduct> orderProducts;
 }

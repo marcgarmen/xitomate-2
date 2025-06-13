@@ -1,43 +1,39 @@
-import { Button } from '@/components/Button/Button';
+import { Button } from '@/components/Button/Button'
 
 interface Props {
-  filter: string;
-  onChange: (value: string) => void;
+  filter: string
+  onChange: (value: string) => void
 }
 
 export default function DemandChart({ filter, onChange }: Props) {
-  const handleFilterChange = (value: string) => {
-    onChange(value);
-  };
-
   return (
-    <section>
+    <section className="bg-white rounded-xl shadow border border-gray-100 p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Predicción de demanda</h2>
         <div className="flex gap-2">
           <Button
-            variant="OutlineGreen"
-            onClick={() => handleFilterChange('daily')}
+            variant={filter === 'daily' ? 'SignupGreen' : 'OutlineGreen'}
+            onClick={() => onChange('daily')}
           >
             Diario
           </Button>
           <Button
-            variant="OutlineGreen"
-            onClick={() => handleFilterChange('weekly')}
+            variant={filter === 'weekly' ? 'SignupGreen' : 'OutlineGreen'}
+            onClick={() => onChange('weekly')}
           >
             Semanal
           </Button>
           <Button
-            variant="OutlineGreen"
-            onClick={() => handleFilterChange('monthly')}
+            variant={filter === 'monthly' ? 'SignupGreen' : 'OutlineGreen'}
+            onClick={() => onChange('monthly')}
           >
             Mensual
           </Button>
         </div>
       </div>
-      <div className="bg-gray-100 h-48 rounded-lg flex items-center justify-center text-gray-500">
-        [Gráfico de barras placeholder]
+      <div className="h-48 flex items-center justify-center bg-[#F4F6F8] rounded-lg">
+        <span className="text-gray-500">[Gráfico de barras placeholder]</span>
       </div>
     </section>
-  );
+)
 }

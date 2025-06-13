@@ -50,7 +50,7 @@ export default function Header({ type }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-sm bg-white/70 border-b border-gray-200">
+    <header className="sticky top-0 z-50 backdrop-blur-sm bg-[#F2F2F2]/70">
       <div className="container mx-auto flex items-center justify-between py-2 px-4">
         <Link href="/" className="flex-shrink-0">
           <Image
@@ -69,8 +69,8 @@ export default function Header({ type }: HeaderProps) {
               href={item.href}
               className={`relative px-1 py-1 text-sm font-semibold transition ${
                 pathname === item.href
-                  ? 'text-[#5EBD6C] before:absolute before:-bottom-1 before:left-1/2 before:-translate-x-1/2 before:w-5 before:h-0.5 before:bg-[#5EBD6C]'
-                  : 'text-[#0C051B] hover:text-[#5EBD6C]'
+                  ? 'text-[#E11D48] before:absolute before:-bottom-1 before:left-1/2 before:-translate-x-1/2 before:w-5 before:h-0.5 before:bg-[#E11D48]'
+                  : 'text-gray-800 hover:text-[#E11D48]'
               }`}
             >
               {item.label}
@@ -92,7 +92,7 @@ export default function Header({ type }: HeaderProps) {
               Cerrar sesión
             </Button>
           )}
-          <button className="lg:hidden text-gray-700 hover:text-[#5EBD6C]">
+          <button className="lg:hidden text-gray-800 hover:text-[#E11D48]">
             <Menu size={20} />
           </button>
         </div>
